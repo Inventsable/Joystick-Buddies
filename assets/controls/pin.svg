@@ -1,0 +1,21 @@
+<svg id="pin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .buddyPin {
+        fill: #e5f4fd;
+        stroke: #b53838;
+        stroke-miterlimit: 10;
+        stroke-width: 20px;
+      }
+
+      .cls-2 {
+        fill: #232323;
+      }
+    </style>
+  </defs>
+  <title>buddyPin</title>
+  <circle class="buddyPin" cx="100" cy="100" r="30"/>
+  <g id="frame">
+    <path class="cls-2" d="M199,1V199H1V1H199m1-1H0V200H200V0Z"/>
+  </g>
+</svg>

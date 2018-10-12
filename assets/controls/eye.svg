@@ -1,0 +1,7 @@
+<svg id="Eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <title>eye</title>
+  <path class="buddyEye" d="M170,100C142.08,40.85,57.92,40.85,30,100h0c27.92,59.15,112.08,59.15,140,0Zm-70,22a22,22,0,1,1,22-22A22,22,0,0,1,100,122Z"/>
+  <g id="frame">
+    <rect class="frame" width="200" height="200"/>
+  </g>
+</svg>

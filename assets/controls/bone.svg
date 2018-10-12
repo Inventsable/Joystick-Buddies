@@ -1,0 +1,22 @@
+<svg id="bone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #b53838;
+        stroke-linecap: round;
+        stroke-miterlimit: 10;
+        stroke-width: 30px;
+      }
+
+      .cls-2 {
+        fill: #232323;
+      }
+    </style>
+  </defs>
+  <title>bone</title>
+  <line class="cls-1" x1="30" y1="100" x2="170" y2="100"/>
+  <g id="frame">
+    <path class="cls-2" d="M199,1V199H1V1H199m1-1H0V200H200V0Z"/>
+  </g>
+</svg>

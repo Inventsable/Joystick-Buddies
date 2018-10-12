@@ -1,0 +1,102 @@
+:root {
+  --icon-size: 50px;
+  --color-r: #b53838;
+  --color-g: #4aa44c;
+  --color-b: #677de0;
+  --color-w: #e5f4fd;
+  --color-grey: #454545;
+  --color-bg: #232323;
+  --color-text: #b9b9b9;
+  --color-selected: #2d8ceb;
+  --border-width: .125rem;
+  background-color: var(--color-bg);
+}
+
+.frame {
+  fill: none;
+  /* stroke: #ff0000; */
+}
+
+/* buddies */
+  .anno {
+    user-select: none;
+    cursor: default;
+    color: var(--color-text);
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .wrapToolbar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    /* border: 2px solid var(--color-selected); */
+  }
+
+  .ctrlToolbar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 90%;
+    /* border: 2px solid var(--color-selected); */
+  }
+
+  svg {
+    width: 25px;
+    height: 25px;
+  }
+
+  /* border-radius: .5rem; */
+  .buddy:first-child {
+    border-radius: .25rem 0px 0px .25rem;
+    border-width: var(--border-width) 0px var(--border-width) var(--border-width);
+  }
+  .buddy:last-child {
+    border-radius: 0px .25rem .25rem 0px;
+    border-width: var(--border-width) var(--border-width) var(--border-width) 0px;
+  }
+  .buddy:not(:first-child):not(:last-child) {
+    border-width: var(--border-width) 0px var(--border-width) 0px;
+  }
+
+  .buddy {
+    border-color: var(--color-grey);
+    border-style: solid;
+    /* margin: .25rem; */
+    padding: .25rem;
+    cursor: pointer;
+  }
+
+  .buddy:hover {
+    background-color: rgba(255, 255, 255, 0.125);
+  }
+
+  [class^="buddy-"] {
+    border: var(--border-width) solid green;
+  }
+
+  .buddy-Eye {
+    fill: var(--color-w);
+  }
+
+  .buddy-Cube {
+    fill: var(--color-w);
+  }
+
+  .buddy-Gaze {
+    fill: var(--color-w);
+  }
+
+  .buddy-Pin {
+    fill: var(--color-w);
+    stroke: var(--color-r);
+    stroke-miterlimit: 10;
+    stroke-width: 20px;
+  }
+
+  .buddy-Orb {
+    fill: var(--color-w);
+  }

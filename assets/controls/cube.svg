@@ -1,0 +1,18 @@
+<svg id="cube" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <style>
+
+
+      .cls-2 {
+        fill: #232323;
+      }
+    </style>
+  </defs>
+  <title>cube</title>
+  <g>
+
+  </g>
+  <g id="frame">
+    <path class="cls-2" d="M199,1V199H1V1H199m1-1H0V200H200V0Z"/>
+  </g>
+</svg>

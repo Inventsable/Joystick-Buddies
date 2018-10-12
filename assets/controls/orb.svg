@@ -1,0 +1,23 @@
+<svg id="orb" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .buddyOrb {
+        fill: #4aa44c;
+      }
+
+      .cls-2 {
+        fill: #232323;
+      }
+    </style>
+  </defs>
+  <title>orb</title>
+  <g>
+    <path class="buddyOrb" d="M40.3,94A60.11,60.11,0,0,1,94,40.3v-20A80.09,80.09,0,0,0,20.25,94Z"/>
+    <path class="buddyOrb" d="M106,40.3A60.11,60.11,0,0,1,159.7,94h20.05A80.09,80.09,0,0,0,106,20.25Z"/>
+    <path class="buddyOrb" d="M94,159.7A60.11,60.11,0,0,1,40.3,106h-20A80.09,80.09,0,0,0,94,179.75Z"/>
+    <path class="buddyOrb" d="M159.7,106A60.11,60.11,0,0,1,106,159.7v20.05A80.09,80.09,0,0,0,179.75,106Z"/>
+  </g>
+  <g id="frame">
+    <path class="cls-2" d="M199,1V199H1V1H199m1-1H0V200H200V0Z"/>
+  </g>
+</svg>
