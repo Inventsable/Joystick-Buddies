@@ -1,4 +1,5 @@
 var csInterface = new CSInterface();
+// var stringSimilarity = require('string-similarity');
 
 loadUniversalJSXLibraries();
 loadJSX('compile.jsx');
@@ -6,6 +7,37 @@ loadJSX('compile.jsx');
 // For cross-component communication, use:
 // Event.$on  ||   Event.$emit
 window.Event = new Vue();
+
+Vue.component('test-btn', {
+  props: ['label'],
+  template: `
+    <div
+      class="btn"
+      @click="runTest(label)">
+      {{label}}
+    </div>
+  `,
+  methods: {
+    runTest: function(e) {
+      try {
+        csInterface.evalScript(`${e}()`)
+      } catch(err) {
+        console.log(err.data);
+      } finally {
+        console.log(`Ran ${e}`);
+      }
+    }
+  }
+})
+
+Vue.component('test-toolbar', {
+  template: `
+    <div class="testToolbar">
+      <test-btn label="kickstart"></test-btn>
+      <test-btn label="colorcode"></test-btn>
+    </div>
+  `,
+})
 
 Vue.component('controller-toolbar', {
   template: `
