@@ -1,5 +1,4 @@
-JSXEvent('Loading...', 'console')
-
+JSXEvent('Host console is online', 'console')
 function runScript(path) {
   try {
   $.evalFile(path)

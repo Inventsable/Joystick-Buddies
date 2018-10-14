@@ -1,11 +1,76 @@
 
-var thisComp = app.project.activeItem;
-var thisProject = app.project.items[2];
+var thisProject = app.project.items[3];
 var selected = app.project.selection;
 
 // UI should be tab-based with screen
+// ([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)  -- Distinct tag
 
-function kickstart() {
+function findCompByName(name) {
+  var result = 0;
+  for (var i = 1; i <= app.project.items.length; i++) {
+    if (app.project.items[i].name == name)
+      result = i;
+  }
+  return result;
+}
+
+function displayColorLabels(compi) {
+  thisProject = app.project.items[compi];
+  for (var i = 1; i <= thisProject.layers.length; i++) {
+  if (i < 17)
+    thisProject.layers[i].label = i;
+  else
+    thisProject.layers[i].label = 0;
+  }
+}
+
+function assignLabelPerType(layerList, color) {
+  for (var i = 1; i <= layerList.length; i++) {
+    var targ = layerList[(i - 1)];
+    thisProject.layers[targ].label = color;
+  }
+}
+
+function assignLabels(matchLists) {
+  console.log(matchLists);
+}
+
+
+function changeLabels(colorOrder) {
+  // var colorOrder = [0, 1, 9, 8, 10, 14, 3, 15];
+  var count = 0;
+  for (var i = 1; i <= thisProject.layers.length; i++) {
+    count++
+    if ((count > 0) && (count < colorOrder.length)) {
+      thisProject.layers[i].label = colorOrder[count];
+    } else {
+      count = 0
+      thisProject.layers[i].label = 0;
+    }
+  }
+}
+
+function getCurrentComp() {
+  return app.project.activeItem.name;
+}
+
+function scanLayerNames() {
+  var nameList = []
+  for (var i = 1; i <= thisProject.layers.length; i++) {
+    nameList.push(thisProject.layers[i].name)
+  }
+  return nameList;
+}
+
+function colorcode(compi, colors) {
+  thisProject = app.project.items[compi];
+  // displayColorLabels();
+  assignLabelPerType([1,2,4,5,8,9], 0);
+  return scanLayerNames();
+}
+
+function kickstart(compi) {
+  thisProject = app.project.items[compi];
   convertVectorsToShapes();
   $.sleep(1000);
   clearSelectedLayers();
@@ -15,8 +80,8 @@ function kickstart() {
 }
 
 function stripOutlinesFromLayerNames() {
-  for (var i = 1; i <= thisComp.layers.length; i++) {
-    var thisLayer = thisComp.layers[i];
+  for (var i = 1; i <= thisProject.layers.length; i++) {
+    var thisLayer = thisProject.layers[i];
     if (/Outlines/.test(thisLayer.name)) {
       var match = thisLayer.name.match(/.*(?=\sOutlines)/)
       thisLayer.name = match[0];
@@ -25,7 +90,7 @@ function stripOutlinesFromLayerNames() {
 }
 
 function getIllustratorIndexList() {
-  let vectors = [],
+  let vectors = [];
   for (var i = 1; i <= thisProject.layers.length; i++) {
     let thisLayer = thisProject.layers[i];
     if (thisLayer instanceof AVLayer) {

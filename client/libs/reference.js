@@ -16,7 +16,7 @@ function loadUniversalJSXLibraries() {
     var root = csInterface.getSystemPath(SystemPath.EXTENSION) + "/host/universal/";
     for (var i = 0; i < libs.length; i++) {
       csInterface.evalScript('$.evalFile("' + root + libs[i] + '")');
-      output += libs[i] + " "
+      output += "\r\n\t" + libs[i]
     }
-    console.log(`Loading ${output}`);
+    console.log(`Preload scripts: ${output}`);
 }

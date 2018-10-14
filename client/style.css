@@ -27,6 +27,25 @@
   margin: .75rem .25rem 0px .25rem;
 }
 
+.compWrap {
+  margin: .75rem .25rem 0px .25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border: 2px solid red; */
+}
+
+.compName {
+  user-select: none;
+  cursor: default;
+  width: auto;
+  padding: .25rem .5rem;
+  border-radius: .25rem;
+  border: 1.35px solid var(--color-border);
+  background-color: #1f1f1f;
+  color: var(--color-text);
+}
+
 .btn {
   border: var(--border-width) solid var(--color-grey);
   color: var(--color-bg);
