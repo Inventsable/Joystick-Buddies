@@ -1,7 +1,9 @@
+// Bug -- when item not selected in Project panel, errors and breaks.
 var thisProject = app.project.items[3];
 var selected = app.project.selection;
-// UI should be tab-based with screen
-// ([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)  -- Distinct tag
+function getCurrentComp() {
+    return app.project.activeItem.name;
+}
 function findCompByName(name) {
     var result = 0;
     for (var i = 1; i <= app.project.items.length; i++) {
@@ -25,8 +27,25 @@ function assignLabelPerType(layerList, color) {
         thisProject.layers[targ].label = color;
     }
 }
-function assignLabels(matchLists) {
-    console.log(matchLists);
+function nullifyLayers(arrs) {
+    arrs = arrs.split(',');
+    // console.log('Nullifying:');
+    for (var i = 0; i < arrs.length; i++) {
+        var targ = arrs[i];
+        var thisLayer = thisProject.layers[targ];
+        thisLayer.label = 0;
+        thisLayer.locked = true;
+        // console.log('\tLayer ' + arrs[i]);
+    }
+}
+function assignLabelsAsColorList(colorList) {
+    colorList = colorList.split(',');
+    // thisProject = app.project.items[2];
+    for (var i = 1; i < colorList.length; i++) {
+        var targ = colorList[i];
+        var thisLayer = thisProject.layers[i];
+        thisLayer.label = Number(targ);
+    }
 }
 function changeLabels(colorOrder) {
     // var colorOrder = [0, 1, 9, 8, 10, 14, 3, 15];
@@ -42,9 +61,6 @@ function changeLabels(colorOrder) {
         }
     }
 }
-function getCurrentComp() {
-    return app.project.activeItem.name;
-}
 function scanLayerNames() {
     var nameList = [];
     for (var i = 1; i <= thisProject.layers.length; i++) {
@@ -55,7 +71,7 @@ function scanLayerNames() {
 function colorcode(compi, colors) {
     thisProject = app.project.items[compi];
     // displayColorLabels();
-    assignLabelPerType([1, 2, 4, 5, 8, 9], 0);
+    // assignLabelPerType([1,2,4,5,8,9], 0);
     return scanLayerNames();
 }
 function kickstart(compi) {

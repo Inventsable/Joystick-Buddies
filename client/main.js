@@ -21,22 +21,24 @@ Vue.component('test-btn', {
       var targ = this.$root.compi, self = this;
       try {
         if (/run/.test(e))
-          csInterface.evalScript(`kickstart(${targ})`)
+          csInterface.evalScript(`kickstart(${targ})`, self.recolor)
         else if (/color/.test(e))
-          csInterface.evalScript(`colorcode(${targ})`, self.getNames)
+          csInterface.evalScript(`colorcode(${targ})`, this.$root.getNames)
         else if (/reset/.test(e))
           csInterface.evalScript(`displayColorLabels(${targ})`)
         else
-          csInterface.evalScript(`${e}()`)
+          console.log('nothing happened');
+          // csInterface.evalScript(`${e}()`)
       } catch(err) {
         console.log(err.data);
       } finally {
         console.log(`Ran ${e}`);
       }
     },
-    getNames: function(e) {
-      this.$root.getKeyWords(e);
-    },
+    recolor: function(e) {
+      var targ = this.$root.compi;
+      csInterface.evalScript(`colorcode(${targ})`, this.$root.getNames)
+    }
   }
 })
 
@@ -155,6 +157,8 @@ var app = new Vue({
    cs: new CSInterface(),
    compname: 'none',
    compi: 2,
+   layerList: [],
+   labelCount: 5,
    labelOrder: [0, 1, 9, 8, 10, 14, 3, 15],
    rx: {
      keysort: /((\d*\_)|[a-z](?=[A-Z])|[a-z]*\s|[A-Z][a-z]*)/gm,
@@ -174,6 +178,65 @@ var app = new Vue({
     testCS(evt) {
       this.cs.evalScript(`alert('${evt}')`)
     },
+    // from color button
+    getNames: function(e) {
+      var result = this.getKeyWords(e);
+      this.layerList = e.split(',');
+      this.layerList.unshift('start');
+      // console.log(this.layerList);
+      this.defineColorsFromMatchList(result, 5);
+    },
+    defineColorsFromMatchList: function(matchList, length) {
+      var uniques = [], labelList = [];
+      for (var i = 0; i < matchList.length; i++) {
+        if (uniques.length) {
+          var err = 0;
+          for (var u = 0; u < uniques.length; u++) {
+            if (matchList[i] !== uniques[u]) {
+              err++;
+            } else {
+              break;
+            }
+            if (err == uniques.length)
+              uniques.push(matchList[i]);
+          }
+        } else {
+          uniques.push(matchList[i]);
+        }
+      }
+      if (uniques.length) {
+        for (var n = 0; n < uniques.length; n++) {
+          var result = n % length + 1;
+          var thisColor = this.labelOrder[result]
+          labelList.push([uniques[n], thisColor]);
+        }
+      }
+      var mirror = [0];
+      for (var m = 0; m < matchList.length; m++) {
+        var keyIndex = matchList[m];
+        for (var l = 0; l < labelList.length; l++) {
+          var targKey = labelList[l][0], targLabel = labelList[l][1];
+          if (keyIndex == targKey)
+            mirror.push(targLabel);
+        }
+      }
+      // console.log(mirror);
+      csInterface.evalScript(`assignLabelsAsColorList('${mirror.toString()}')`)
+      this.postNullify(['bg', '^00_']);
+    },
+    postNullify: function(regs) {
+      // console.log(this.layerList);
+      var nulltargs = [];
+      for (var u = 0; u < this.layerList.length; u++) {
+        for (var i = 0; i < regs.length; i++) {
+          var temp = RegExp(regs[i])
+          if (temp.test(this.layerList[u]))
+            nulltargs.push(u)
+        }
+      }
+      var message = nulltargs.join(',');
+      csInterface.evalScript(`nullifyLayers('${message}')`)
+    },
     getKeyWords: function(nameList) {
       nameList = nameList.split(',');
       var allKeyWords = [];
@@ -191,7 +254,7 @@ var app = new Vue({
       }
       var uniques = this.removeDuplicateKeywords(allKeyWords);
       var uniqueLimbs = this.sortByType(uniques, 'limb');
-      this.identifyTypesInLayers(nameList, uniqueLimbs);
+      return this.identifyTypesInLayers(nameList, uniqueLimbs);
     },
     sortByType: function(arr, type) {
       var omit = ['N', 'S', 'E', 'W', 'n', 's', 'e', 'w', 'L', 'l', 'Left', 'left', 'R', 'r', 'Right', 'right'];
@@ -219,14 +282,8 @@ var app = new Vue({
           }
         }
         typeOrder.push(match)
-        console.log(`Layer ${i + 1} "${str}" matches tag ${typeList[match]}`);
-        // console.log(results);
       }
-      console.log(nameList);
-      console.log(typeList);
-      console.log(typeOrder);
-      var typeUniques = this.removeDuplicateKeywords(typeOrder)
-      console.log(typeUniques);
+      return typeOrder;
     },
     // filterArrayNegative(haystack, needleList) = haystack[no needles]
     filterArrayNegative: function(a, b) {
