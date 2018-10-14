@@ -27,8 +27,8 @@ Vue.component('test-btn', {
         else if (/reset/.test(e))
           csInterface.evalScript(`displayColorLabels(${targ})`)
         else
-          console.log('nothing happened');
-          // csInterface.evalScript(`${e}()`)
+          csInterface.evalScript(`${e}()`)
+          // console.log('nothing happened');
       } catch(err) {
         console.log(err.data);
       } finally {
@@ -42,31 +42,176 @@ Vue.component('test-btn', {
   }
 })
 
+Vue.component('layer-tags', {
+  template: `
+    <div class="tagsWrap">
+      <div @click="toggleScan" :class="scanClass">s</div>
+      <div :class="countClass" @click="produceLayerList">{{selection.length}}</div>
+      <div v-for="tag in tagList" :class="tagBtn(tag)">{{tag.name}}</div>
+    </div>
+  `,
+  data() {
+    return {
+      tagList: [
+        {
+          name: 'w',
+          key: 0,
+          label: 0,
+          color: '#b53838'
+        },
+        {
+          name: 'Eye',
+          key: 1,
+          label: 14,
+          color: '#4aa44c'
+        },
+      ],
+      indexList: [],
+      scanning: false,
+      selection: {
+        length: 0,
+      },
+      timer: {
+        selection: null,
+      },
+    }
+  },
+  computed: {
+    countClass: function() {
+      return 'count-'
+    },
+    scanClass: function() {
+      return 'btn-alt-' + this.scanning;
+    }
+  },
+  methods: {
+    produceLayerList: function() {
+      var self = this;
+      csInterface.evalScript(`getSelectedLayersList()`, self.readLayerList)
+    },
+    readLayerList: function(data) {
+      if (data)
+        data = data.split(',');
+      console.log(data);
+    },
+    tagBtn: function(tag) {
+      var style = 'tagBtn-' + tag.key
+      return style
+    },
+    hasSelection: function() {
+      // console.log('Has selection?');
+      var self = this;
+      csInterface.evalScript(`getSelectedLayersLength()`, self.compareSelectionLength)
+    },
+    compareSelectionLength: function(e) {
+      if (this.selection.length !== e) {
+        console.log('Changed');
+      }
+      this.selection.length = e;
+    },
+    scanLayers: function(state) {
+      var self = this;
+      if (state)
+        this.timer.selection = setInterval(self.hasSelection, 500);
+    },
+    stopLayersScan: function() {
+      clearInterval(this.timer.selection);
+    },
+    toggleScan: function(e) {
+      this.scanning = !this.scanning;
+      if (this.scanning)
+        this.scanLayers(this.scanning);
+      else
+        this.stopLayersScan();
+    },
+  }
+})
+
 Vue.component('comp-name', {
   template: `
     <div class="compWrap">
+      <div @click="toggleCompScan" :class="scanClass">scan</div>
       <div class="compName">{{name}}</div>
     </div>
   `,
   data() {
     return {
-      name: 'compname'
+      name: 'compname',
+      lastName: 'compname',
+      itemIndex: 0,
+      itemLastIndex: 0,
+      compScanning: false,
+      timer: {
+        comp: null,
+        selection: null,
+      }
+    }
+  },
+  computed: {
+    scanClass: function() {
+      return 'btn-alt-' + this.compScanning;
     }
   },
   methods: {
+    toggleCompScan: function(e) {
+      this.compScanning = !this.compScanning;
+      if (this.compScanning)
+        this.scanComp(this.compScanning);
+      else
+        this.stopCompScan();
+    },
     assignCompName: function(e) {
       var self = this;
       this.name = e;
       csInterface.evalScript(`findCompByName('${e}')`, self.getCompIndex)
     },
     getCompIndex: function(e) {
-      // console.log(`Index of current comp is ${e}`);
+      this.itemIndex = e;
       this.$root.compi = e;
-    }
+    },
+    updateCompName: function(e) {
+      this.lastName = this.name;
+      this.name = e;
+    },
+    ifNewIndex: function(e) {
+      var self = this;
+      if (this.itemIndex !== e) {
+        console.log(`${this.itemIndex} changed to ${e}`);
+        this.$root.compi = e;
+        csInterface.evalScript(`getCompNameByIndex(${e})`, self.updateCompName);
+      } else {
+        console.log(`${this.itemIndex} has not changed from ${e}`);
+      }
+      this.itemIndex = e;
+    },
+    compareCompIndex: function() {
+      csInterface.evalScript(`getActiveItemIndex()`, this.ifNewIndex)
+    },
+    scanComp: function(state) {
+      var self = this;
+      if (state)
+        this.timer.comp = setInterval(self.compareCompIndex, 500);
+    },
+    stopCompScan: function() {
+      clearInterval(this.timer.comp);
+    },
+    // scanCompName: function(state) {
+    //   var self = this, scan;
+    //   if (!state) {
+    //     console.log('Turning off');
+    //     clearInterval(scan);
+    //   } else {
+    //     scan = setInterval(function(){
+    //       console.log(self.name);
+    //     }, 500);
+    //   }
+    // },
   },
   mounted() {
     var self = this;
-    csInterface.evalScript(`getCurrentComp()`, self.assignCompName)
+    // Event.$on('toggleScanOn', this.scanCompName(true))
+    // Event.$on('toggleScanOff', this.scanCompName(false))
+    csInterface.evalScript(`getCurrentComp()`, self.assignCompName);
   }
 })
 
@@ -170,14 +315,13 @@ var app = new Vue({
   mounted: function () {
     var self = this;
     console.log(`Root instance mounted`);
+    // console.log(window.__adobe_cep__);
+    // console.log(csInterface);
   },
   beforeDestroy: function () {
     // window.removeEventListener('resize', this.handleResize);
   },
   methods: {
-    testCS(evt) {
-      this.cs.evalScript(`alert('${evt}')`)
-    },
     // from color button
     getNames: function(e) {
       var result = this.getKeyWords(e);
@@ -220,7 +364,7 @@ var app = new Vue({
             mirror.push(targLabel);
         }
       }
-      // console.log(mirror);
+      console.log(mirror);
       csInterface.evalScript(`assignLabelsAsColorList('${mirror.toString()}')`)
       this.postNullify(['bg', '^00_']);
     },

@@ -4,6 +4,63 @@ var selected = app.project.selection;
 function getCurrentComp() {
     return app.project.activeItem.name;
 }
+function getActiveItemIndex() {
+    return findCompByName(getCurrentComp());
+}
+function getSelectedLayersLength() {
+    var activeItem = app.project.activeItem, result = 0;
+    if (activeItem != null && activeItem instanceof CompItem) {
+        if (activeItem.selectedLayers.length > 0)
+            result = activeItem.selectedLayers.length;
+    }
+    return result;
+}
+function getSelectedLayersList() {
+    var activeItem = app.project.activeItem, results = [];
+    if (activeItem != null && activeItem instanceof CompItem) {
+        if (activeItem.selectedLayers.length > 0) {
+            for (var i = 0; i < activeItem.selectedLayers.length; i++) {
+                try {
+                    var child = activeItem.selectedLayers[i];
+                    if (child instanceof AVLayer) {
+                        results.push(child.index);
+                    }
+                }
+                catch (err) {
+                    console.log(err);
+                }
+            }
+        }
+    }
+    if (results.length)
+        return results;
+    else
+        return 0;
+}
+// for (var e = 1; e <= activeItem.selectedLayers.length; e++) {
+//   var child = activeItem.selectedLayers[e];
+//   console.log(e);
+//   if (child instanceof AVLayer) {
+//     console.log(child.index);
+//   }
+// }
+// var selectedIndex = activeItem.selectedLayers[0].index+1;
+// while (selectedIndex <= activeItem.numLayers) {
+//    // activeItem.layer(selectedIndex).selected = true;
+//    selectedIndex++;
+// }
+// console.log(selectedIndex);
+// console.log(layerList);
+// if (layerList.length)
+// return layerList;
+// else
+//   return false;
+// }
+function getCompNameByIndex(i) {
+    var num = Number(i);
+    var result = app.project.items[num].name;
+    return result;
+}
 function findCompByName(name) {
     var result = 0;
     for (var i = 1; i <= app.project.items.length; i++) {
