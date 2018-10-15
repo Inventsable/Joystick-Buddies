@@ -2,7 +2,9 @@
 
 Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.
 
-## UI mock
+## proto UI
+![](https://i.imgur.com/sHLUUX3.png)
+
 
 ![demo](https://thumbs.gfycat.com/FantasticUnfoldedBlueandgoldmackaw-size_restricted.gif)
 
