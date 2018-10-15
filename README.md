@@ -5,10 +5,15 @@ Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector charact
 ## proto UI
 ![](https://i.imgur.com/sHLUUX3.png)
 
+## selection change detection
+![](https://thumbs.gfycat.com/RegalIllCassowary-size_restricted.gif)
 
+## kickstart
 ![demo](https://thumbs.gfycat.com/FantasticUnfoldedBlueandgoldmackaw-size_restricted.gif)
 
 ## to-do
+* UI revamp > Finish grid outline and placement
+* UI revamp > Rebuild as vue components
 * Kickstart > Detect comp as riggable and prompt for kickstart
 * ~~Kickstart > Convert AI layers to vector, strip "Outlines" and delete originals.~~
 * ~~Kickstart > Discover related layers via dynamic keywords and auto-assign matching color labels.~~
