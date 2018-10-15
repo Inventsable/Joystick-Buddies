@@ -1,0 +1,16 @@
+<svg id="cursor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>cursor</title>
+  <polygon class="cls-1" points="0.85 28.43 9.26 20.54 21.15 20.54 0.91 1.57 0.85 28.43"/>
+  <rect class="cls-2" width="22" height="30"/>
+</svg>

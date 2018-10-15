@@ -1,0 +1,16 @@
+<svg id="bone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>bone</title>
+  <path class="cls-1" d="M26,14H18a3.11,3.11,0,0,0-5.9,0H4a1,1,0,0,0,0,2h8.05A3.11,3.11,0,0,0,18,16H26a1,1,0,0,0,0-2ZM15,16.88A1.88,1.88,0,1,1,16.59,16,1.9,1.9,0,0,1,15,16.88Z"/>
+  <rect class="cls-2" width="30" height="30"/>
+</svg>

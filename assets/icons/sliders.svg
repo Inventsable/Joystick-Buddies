@@ -1,0 +1,19 @@
+<svg id="sliders" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>sliders</title>
+  <g>
+    <path class="cls-1" d="M19.68,6.3v2H10.32v-2H3.63V13h6.69V11h9.36v2h6.69V6.3ZM9,11.66H5v-4H9Zm16.05,0H21v-4h4Z"/>
+    <path class="cls-1" d="M19.68,17v2H10.32V17H3.63V23.7h6.69v-2h9.36v2h6.69V17ZM9,22.36H5v-4H9Zm16.05,0H21v-4h4Z"/>
+  </g>
+  <rect class="cls-2" width="30" height="30"/>
+</svg>

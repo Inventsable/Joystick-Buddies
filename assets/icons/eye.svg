@@ -1,0 +1,16 @@
+<svg id="eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>eye</title>
+  <path class="cls-1" d="M3.29,15h0a13.6,13.6,0,0,1,23.42,0h0A13.6,13.6,0,0,1,3.29,15ZM15,10a5,5,0,1,0,5,5A5,5,0,0,0,15,10Zm0,3.09A1.88,1.88,0,1,0,16.88,15,1.88,1.88,0,0,0,15,13.12Z"/>
+  <rect class="cls-2" width="30" height="30"/>
+</svg>

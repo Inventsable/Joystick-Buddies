@@ -1,0 +1,23 @@
+<svg id="boxes" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>boxes</title>
+  <g>
+    <path class="cls-1" d="M4.3,8.31v5.35H9.65V8.31Zm4,4H5.63V9.65H8.31Z"/>
+    <path class="cls-1" d="M20.35,8.31v5.35H25.7V8.31Zm4,4H21.69V9.65h2.68Z"/>
+    <path class="cls-1" d="M12.32,8.31v5.35h5.36V8.31Zm4,4H13.66V9.65h2.68Z"/>
+    <path class="cls-1" d="M4.3,16.34v5.35H9.65V16.34Zm4,4H5.63V17.68H8.31Z"/>
+    <path class="cls-1" d="M20.35,16.34v5.35H25.7V16.34Zm4,4H21.69V17.68h2.68Z"/>
+    <path class="cls-1" d="M12.32,16.34v5.35h5.36V16.34Zm4,4H13.66V17.68h2.68Z"/>
+  </g>
+  <rect class="cls-2" width="30" height="30"/>
+</svg>

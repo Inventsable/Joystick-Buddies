@@ -1,0 +1,16 @@
+<svg id="wrench" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 12">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>wrench</title>
+  <path class="cls-1" d="M23.69,17.17,22.44,15l1.25-2.16h3a3.69,3.69,0,0,0-6.49.93H10.49a3.71,3.71,0,1,0,0,2.47h9.73a3.69,3.69,0,0,0,6.49.93ZM8,16.67H6L5.08,15l1-1.67H8l1,1.67Z" transform="translate(0 -9)"/>
+  <rect class="cls-2" width="30" height="12"/>
+</svg>

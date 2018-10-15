@@ -15,7 +15,7 @@ function getSelectedLayersLength() {
     }
     return result;
 }
-function getSelectedLayersList() {
+function getSelectedLayerNames() {
     var activeItem = app.project.activeItem, results = [];
     if (activeItem != null && activeItem instanceof CompItem) {
         if (activeItem.selectedLayers.length > 0) {
@@ -23,7 +23,7 @@ function getSelectedLayersList() {
                 try {
                     var child = activeItem.selectedLayers[i];
                     if (child instanceof AVLayer) {
-                        results.push(child.index);
+                        results.push(child.index + ";" + child.name);
                     }
                 }
                 catch (err) {
@@ -37,25 +37,6 @@ function getSelectedLayersList() {
     else
         return 0;
 }
-// for (var e = 1; e <= activeItem.selectedLayers.length; e++) {
-//   var child = activeItem.selectedLayers[e];
-//   console.log(e);
-//   if (child instanceof AVLayer) {
-//     console.log(child.index);
-//   }
-// }
-// var selectedIndex = activeItem.selectedLayers[0].index+1;
-// while (selectedIndex <= activeItem.numLayers) {
-//    // activeItem.layer(selectedIndex).selected = true;
-//    selectedIndex++;
-// }
-// console.log(selectedIndex);
-// console.log(layerList);
-// if (layerList.length)
-// return layerList;
-// else
-//   return false;
-// }
 function getCompNameByIndex(i) {
     var num = Number(i);
     var result = app.project.items[num].name;

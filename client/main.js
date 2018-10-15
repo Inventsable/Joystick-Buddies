@@ -69,6 +69,9 @@ Vue.component('layer-tags', {
       indexList: [],
       scanning: false,
       selection: {
+        tagNames: [],
+        tagKeys: [],
+        keyWords: [],
         length: 0,
       },
       timer: {
@@ -85,9 +88,36 @@ Vue.component('layer-tags', {
     }
   },
   methods: {
+    readLayerNameList: function(result) {
+      console.log(result);
+      // Needs fix for selection length 0
+      if (result) {
+        var totals = result.split(',');
+        var reconstructed = [];
+        for (var i = 0; i < totals.length; i++)
+          reconstructed.push(totals[i].split(';'))
+        // console.log(reconstructed);
+        for (var e = 0; e < reconstructed.length; e++) {
+          // console.log(reconstructed[e]);
+          this.selection.tagKeys.push(Number(reconstructed[e][0]))
+          this.selection.tagNames.push(reconstructed[e][1])
+        }
+        // console.log('Reading namelist results as:');
+        // console.log(totals);
+        // console.log(reconstructed);
+        console.log(this.selection.tagKeys);
+        console.log(this.selection.tagNames);
+      } else {
+        console.log('No selection');
+      }
+    },
+    getSelectedLayerNameList: function() {
+      var self = this;
+      csInterface.evalScript(`getSelectedLayerNames()`, self.readLayerNameList)
+    },
     produceLayerList: function() {
       var self = this;
-      csInterface.evalScript(`getSelectedLayersList()`, self.readLayerList)
+      csInterface.evalScript(`getSelectedLayersLength()`, self.readLayerList)
     },
     readLayerList: function(data) {
       if (data)
@@ -106,6 +136,7 @@ Vue.component('layer-tags', {
     compareSelectionLength: function(e) {
       if (this.selection.length !== e) {
         console.log('Changed');
+        this.getSelectedLayerNameList();
       }
       this.selection.length = e;
     },
@@ -322,6 +353,9 @@ var app = new Vue({
     // window.removeEventListener('resize', this.handleResize);
   },
   methods: {
+    getKeyWordsFromSelectedLayers: function(nameList) {
+      var result = this.getKeyWords(nameList)
+    },
     // from color button
     getNames: function(e) {
       var result = this.getKeyWords(e);

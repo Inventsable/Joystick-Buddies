@@ -2,10 +2,11 @@
 
 Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.
 
+## UI mock
+
 ![demo](https://thumbs.gfycat.com/FantasticUnfoldedBlueandgoldmackaw-size_restricted.gif)
 
 ## to-do
-
 * Kickstart > Detect comp as riggable and prompt for kickstart
 * ~~Kickstart > Convert AI layers to vector, strip "Outlines" and delete originals.~~
 * ~~Kickstart > Discover related layers via dynamic keywords and auto-assign matching color labels.~~

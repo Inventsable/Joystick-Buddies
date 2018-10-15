@@ -1,0 +1,21 @@
+<svg id="cube" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>cube</title>
+  <g>
+    <polygon class="cls-1" points="25.7 25.7 17.01 25.7 17.01 23.03 23.03 23.03 23.03 17.01 25.7 17.01 25.7 25.7"/>
+    <polygon class="cls-1" points="25.7 12.99 23.03 12.99 23.03 6.97 17.01 6.97 17.01 4.3 25.7 4.3 25.7 12.99"/>
+    <polygon class="cls-1" points="6.97 12.99 4.3 12.99 4.3 4.3 12.99 4.3 12.99 6.97 6.97 6.97 6.97 12.99"/>
+    <polygon class="cls-1" points="12.99 25.7 4.3 25.7 4.3 17.01 6.97 17.01 6.97 23.03 12.99 23.03 12.99 25.7"/>
+  </g>
+  <rect class="cls-2" width="30" height="30"/>
+</svg>

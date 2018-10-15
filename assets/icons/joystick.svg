@@ -1,0 +1,16 @@
+<svg id="joystick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4b5362;
+      }
+
+      .cls-2 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title>joystick</title>
+  <path class="cls-1" d="M21.66,5.63H8.34A2.71,2.71,0,0,0,5.63,8.34V21.66a2.71,2.71,0,0,0,2.71,2.71H21.66a2.71,2.71,0,0,0,2.71-2.71V8.34A2.71,2.71,0,0,0,21.66,5.63ZM17.15,17.15h-4.3v-4.3h4.3Z"/>
+  <rect class="cls-2" width="30" height="30"/>
+</svg>
