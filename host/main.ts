@@ -1,6 +1,6 @@
-// Bug -- when item not selected in Project panel, errors and breaks.
+//
 
-var thisProject = app.project.items[3];
+var thisProject = app.project.activeItem;
 var selected = app.project.selection;
 
 function getCurrentComp() {
@@ -20,22 +20,30 @@ function getSelectedLayersLength() {
   return result;
 }
 
+// Broken
 function getSelectedLayerNames() {
-  var activeItem = app.project.activeItem, results = [];
+  var results = [], activeItem = app.project.activeItem;
   if (activeItem != null && activeItem instanceof CompItem) {
     if (activeItem.selectedLayers.length > 0) {
+      console.log(activeItem.selectedLayers[0]);
       for (var i = 0; i < activeItem.selectedLayers.length; i++) {
         try {
-          var child = activeItem.selectedLayers[i];
-          if (child instanceof AVLayer) {
-            results.push(child.index + ";" + child.name)
-          }
+          console.log(i);
+          // var child = activeItem.selectedLayers[i];
+          // console.log(child);
+          console.log('This errors when number is needed');
+          // if (child instanceof AVLayer) {
+            // console.log('This never shows');
+            // results.push(child.index + ";" + child.name)
+          // }
         } catch(err) {
-          console.log(err);
+          console.log('Caught: ' + err);
         }
       }
     }
   }
+  // This turns up blank
+  console.log(results);
   if (results.length)
     return results;
   else
@@ -57,8 +65,8 @@ function findCompByName(name) {
   return result;
 }
 
-function displayColorLabels(compi) {
-  thisProject = app.project.items[compi];
+function displayColorLabels() {
+  thisProject = app.project.activeItem;
   for (var i = 1; i <= thisProject.layers.length; i++) {
   if (i < 17)
     thisProject.layers[i].label = i;
@@ -119,15 +127,15 @@ function scanLayerNames() {
   return nameList;
 }
 
-function colorcode(compi, colors) {
-  thisProject = app.project.items[compi];
+function colorcode() {
+  thisProject = app.project.activeItem;
   // displayColorLabels();
   // assignLabelPerType([1,2,4,5,8,9], 0);
   return scanLayerNames();
 }
 
-function kickstart(compi) {
-  thisProject = app.project.items[compi];
+function kickstart() {
+  thisProject = app.project.activeItem;
   convertVectorsToShapes();
   $.sleep(1000);
   clearSelectedLayers();

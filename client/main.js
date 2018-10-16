@@ -3,69 +3,121 @@ loadUniversalJSXLibraries();
 loadJSX('compile.jsx');
 window.Event = new Vue();
 
-// UI should be tab-based with screen
-// ([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)  -- Distinct tag
-
-
-Vue.component('test-btn', {
-  props: ['label'],
+Vue.component('rig', {
   template: `
-    <div
-      class="btn"
-      @click="runTest(label)">
-      {{label}}
+    <div @click="action(state)" class="head-C">
+      <div class="head-C-btn">
+        <span class="omo-icon-wrench"></span>
+      </div>
+      <span class="rig-anno">{{anno}}</span>
     </div>
   `,
+  data() {
+    return {
+      anno: 'kickstart',
+      state: 'kickstart',
+    }
+  },
   methods: {
-    runTest: function(e) {
-      var targ = this.$root.compi, self = this;
-      try {
-        if (/run/.test(e))
-          csInterface.evalScript(`kickstart(${targ})`, self.recolor)
-        else if (/color/.test(e))
-          csInterface.evalScript(`colorcode(${targ})`, this.$root.getNames)
-        else if (/reset/.test(e))
-          csInterface.evalScript(`displayColorLabels(${targ})`)
-        else
-          csInterface.evalScript(`${e}()`)
-          // console.log('nothing happened');
-      } catch(err) {
-        console.log(err.data);
-      } finally {
-        console.log(`Ran ${e}`);
-      }
+    kickstart: function() {
+      var self = this;
+      csInterface.evalScript(`kickstart()`, self.recolor)
     },
     recolor: function(e) {
-      var targ = this.$root.compi;
-      csInterface.evalScript(`colorcode(${targ})`, this.$root.getNames)
+      console.log('Recoloring');
+      console.log(e);
+      csInterface.evalScript(`changeLabels()`, this.$root.getNames)
+    },
+    action: function(str) {
+      // console.log(`should target ${str}()`);
+      csInterface.evalScript(`${str}()`)
     }
   }
 })
 
-Vue.component('layer-tags', {
+Vue.component('taglist', {
   template: `
-    <div class="tagsWrap">
-      <div @click="toggleScan" :class="scanClass">s</div>
-      <div :class="countClass" @click="produceLayerList">{{selection.length}}</div>
-      <div v-for="tag in tagList" :class="tagBtn(tag)">{{tag.name}}</div>
+    <div class="bTags">
+      <div class="bTags-body">
+        <div v-for="tag in tagList" :class="tagBtn(tag)">{{tag.name}}</div>
+      </div>
+      <div class="bTags-footer">
+        <span class="bTags-footer-data">{{tagData}}</span>
+      </div>
     </div>
   `,
   data() {
     return {
       tagList: [
         {
-          name: 'w',
+          name: 'buddy',
           key: 0,
-          label: 0,
-          color: '#b53838'
-        },
-        {
-          name: 'Eye',
-          key: 1,
-          label: 14,
-          color: '#4aa44c'
         },
       ],
+    }
+  },
+  methods: {
+    tagBtn: function(tag) {
+      var style = 'bTags-tag'
+      return style
+    },
+    clearTags: function() {
+      this.tagList = [];
+    },
+    constructTags: function() {
+      this.tagList = [];
+      console.log('Hello?');
+      for (var i = 0; i < this.$root.tags.pretty.length; i++) {
+        var child = {
+          key: i,
+          name: this.$root.tags.pretty[i],
+        }
+        this.tagList.push(child);
+      }
+      // console.log(this.$root.tags.pretty);
+      // console.log(this.$root.tags.raw);
+      // console.log(this.$root.tags.indexOrder);
+      // console.log(this.$root.tags.nameOrder);
+      // console.log(this.$root.tags.typeOrder);
+    }
+  },
+  computed: {
+    tagData: function() {
+      var desc = this.tagList.length
+      if (this.tagList.length > 1)
+        desc += ' tags selected'
+      else if (this.tagList.length > 0)
+        desc += ' tag selected'
+      else
+        desc = 'No selection'
+      return desc;
+    },
+  },
+  mounted() {
+    Event.$on('updateTags', this.constructTags);
+    Event.$on('clearTags', this.clearTags);
+  }
+})
+
+Vue.component('selector', {
+  template: `
+    <div class="aSelect">
+      <div :class="(scanning) ? 'cursor-btn-active' : 'cursor-btn-idle'">
+        <div @click="toggleScan" >
+          <span class="omo-icon-cursor"></span>
+        </div>
+      </div>
+      <div class="aSelect-suffix">
+        <div @click="produceLayerList" class="aSelect-suffix-top">
+          <span class="omo-icon-layer"></span>
+          <span>layers</span>
+        </div>
+        <div class="aSelect-suffix-btm">{{selection.length}}</div>
+      </div>
+    </div>
+  `,
+  data() {
+    return {
       indexList: [],
       scanning: false,
       selection: {
@@ -87,28 +139,39 @@ Vue.component('layer-tags', {
       return 'btn-alt-' + this.scanning;
     }
   },
+  mounted() {
+    this.toggleScan();
+    Event.$on('updateTags', this.updateTags)
+  },
   methods: {
+    updateTags: function(data) {
+      console.log('Updated sibling');
+    },
     readLayerNameList: function(result) {
       console.log(result);
-      // Needs fix for selection length 0
-      if (result) {
+      // console.log('Hello?');
+      this.selection.tagKeys = [], this.selection.tagNames = [];
+      if (result !== '0') {
+        console.log('Hello?');
         var totals = result.split(',');
         var reconstructed = [];
         for (var i = 0; i < totals.length; i++)
           reconstructed.push(totals[i].split(';'))
-        // console.log(reconstructed);
         for (var e = 0; e < reconstructed.length; e++) {
-          // console.log(reconstructed[e]);
           this.selection.tagKeys.push(Number(reconstructed[e][0]))
           this.selection.tagNames.push(reconstructed[e][1])
         }
-        // console.log('Reading namelist results as:');
-        // console.log(totals);
-        // console.log(reconstructed);
-        console.log(this.selection.tagKeys);
-        console.log(this.selection.tagNames);
+        var self = this;
+        console.log(self.selection.tagNames);
+        var tags = this.$root.getKeyWordsFromSelectedLayers(self.selection.tagNames);
+        // console.log(tags);
+        Event.$emit('updateTags');
+        this.$root.tags.indexOrder = this.selection.tagKeys;
+        this.$root.tags.nameOrder = this.selection.tagNames;
+        // console.log(tags);
       } else {
-        console.log('No selection');
+        console.log('Clearing');
+        Event.$emit('clearTags');
       }
     },
     getSelectedLayerNameList: function() {
@@ -122,20 +185,15 @@ Vue.component('layer-tags', {
     readLayerList: function(data) {
       if (data)
         data = data.split(',');
-      console.log(data);
-    },
-    tagBtn: function(tag) {
-      var style = 'tagBtn-' + tag.key
-      return style
+      return data;
     },
     hasSelection: function() {
-      // console.log('Has selection?');
       var self = this;
       csInterface.evalScript(`getSelectedLayersLength()`, self.compareSelectionLength)
     },
     compareSelectionLength: function(e) {
       if (this.selection.length !== e) {
-        console.log('Changed');
+        // console.log('Changed');
         this.getSelectedLayerNameList();
       }
       this.selection.length = e;
@@ -158,172 +216,31 @@ Vue.component('layer-tags', {
   }
 })
 
-Vue.component('comp-name', {
+Vue.component('labels', {
   template: `
-    <div class="compWrap">
-      <div @click="toggleCompScan" :class="scanClass">scan</div>
-      <div class="compName">{{name}}</div>
+    <div class="head-B">
+      <div @click="recolor" class="labels-btn">
+        <span class="omo-icon-labels"></span>
+      </div>
+      <div class="head-B-suffix">
+        <div class="head-B-suffix-top">
+          <div class="head-B-suffix-top-prefix"></div>
+          <div class="head-B-suffix-top-suffix"></div>
+        </div>
+        <div class="head-B-suffix-btm"></div>
+      </div>
     </div>
   `,
-  data() {
-    return {
-      name: 'compname',
-      lastName: 'compname',
-      itemIndex: 0,
-      itemLastIndex: 0,
-      compScanning: false,
-      timer: {
-        comp: null,
-        selection: null,
-      }
-    }
-  },
-  computed: {
-    scanClass: function() {
-      return 'btn-alt-' + this.compScanning;
-    }
-  },
   methods: {
-    toggleCompScan: function(e) {
-      this.compScanning = !this.compScanning;
-      if (this.compScanning)
-        this.scanComp(this.compScanning);
-      else
-        this.stopCompScan();
+    recolor: function(e) {
+      csInterface.evalScript(`colorcode()`, this.$root.getNames)
     },
-    assignCompName: function(e) {
-      var self = this;
-      this.name = e;
-      csInterface.evalScript(`findCompByName('${e}')`, self.getCompIndex)
+    resetColorLabels: function() {
+      csInterface.evalScript(`displayColorLabels()`)
     },
-    getCompIndex: function(e) {
-      this.itemIndex = e;
-      this.$root.compi = e;
-    },
-    updateCompName: function(e) {
-      this.lastName = this.name;
-      this.name = e;
-    },
-    ifNewIndex: function(e) {
-      var self = this;
-      if (this.itemIndex !== e) {
-        console.log(`${this.itemIndex} changed to ${e}`);
-        this.$root.compi = e;
-        csInterface.evalScript(`getCompNameByIndex(${e})`, self.updateCompName);
-      } else {
-        console.log(`${this.itemIndex} has not changed from ${e}`);
-      }
-      this.itemIndex = e;
-    },
-    compareCompIndex: function() {
-      csInterface.evalScript(`getActiveItemIndex()`, this.ifNewIndex)
-    },
-    scanComp: function(state) {
-      var self = this;
-      if (state)
-        this.timer.comp = setInterval(self.compareCompIndex, 500);
-    },
-    stopCompScan: function() {
-      clearInterval(this.timer.comp);
-    },
-    // scanCompName: function(state) {
-    //   var self = this, scan;
-    //   if (!state) {
-    //     console.log('Turning off');
-    //     clearInterval(scan);
-    //   } else {
-    //     scan = setInterval(function(){
-    //       console.log(self.name);
-    //     }, 500);
-    //   }
-    // },
-  },
-  mounted() {
-    var self = this;
-    // Event.$on('toggleScanOn', this.scanCompName(true))
-    // Event.$on('toggleScanOff', this.scanCompName(false))
-    csInterface.evalScript(`getCurrentComp()`, self.assignCompName);
   }
 })
 
-Vue.component('test-toolbar', {
-  template: `
-    <div class="testToolbar">
-      <test-btn label="run"></test-btn>
-      <test-btn label="color"></test-btn>
-      <test-btn label="reset"></test-btn>
-    </div>
-  `,
-})
-
-Vue.component('controller-toolbar', {
-  template: `
-    <div class="ctrlToolbar">
-      <controller kind="cube"></controller>
-      <controller kind="orb"></controller>
-      <controller kind="pin"></controller>
-      <controller kind="eye"></controller>
-      <controller kind="gaze"></controller>
-    </div>
-  `,
-})
-
-Vue.component('controller', {
-  props: ['kind'],
-  template: `
-    <svg class="buddy" @click="newController(kind)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-      <path v-if="isKind(kind, 'eye')" class="buddy-Eye" :d="eye.Points"/>
-      <circle v-if="isKind(kind, 'pin')" class="buddy-Pin" cx="100" cy="100" r="30"/>
-      <g v-if="isKind(kind, 'orb')">
-        <path class="buddy-Orb" v-for="quadrant in orb" :d="quadrant"/>
-      </g>
-      <g v-if="isKind(kind, 'cube')">
-        <polygon class="buddy-Cube" v-for="quadrant in cube" :points="quadrant"/>
-      </g>
-      <g v-if="isKind(kind, 'gaze')">
-        <circle class="buddy-Gaze" cx="100" cy="100" r="30"/>
-        <circle class="buddy-Gaze" cx="30" cy="100" r="10"/>
-        <circle class="buddy-Gaze" cx="170" cy="100" r="10"/>
-      </g>
-      <rect class="frame" width="200" height="200"/>
-    </svg>
-  `,
-  data() {
-    return {
-      eye: {
-        Points: 'M170,100C142.08,40.85,57.92,40.85,30,100h0c27.92,59.15,112.08,59.15,140,0Zm-70,22a22,22,0,1,1,22-22A22,22,0,0,1,100,122Z',
-      },
-      pin: {
-        x: '100',
-        y: '100',
-        r: '30'
-      },
-      orb: [
-        'M40.3,94A60.11,60.11,0,0,1,94,40.3v-20A80.09,80.09,0,0,0,20.25,94Z',
-        'M106,40.3A60.11,60.11,0,0,1,159.7,94h20.05A80.09,80.09,0,0,0,106,20.25Z',
-        'M94,159.7A60.11,60.11,0,0,1,40.3,106h-20A80.09,80.09,0,0,0,94,179.75Z',
-        'M159.7,106A60.11,60.11,0,0,1,106,159.7v20.05A80.09,80.09,0,0,0,179.75,106Z'
-      ],
-      cube: [
-        '180 180 135 180 135 160 160 160 160 135 180 135 180 180',
-        '180 65 160 65 160 40 135 40 135 20 180 20 180 65',
-        '40 65 20 65 20 20 65 20 65 40 40 40 40 65',
-        '65 180 20 180 20 135 40 135 40 160 65 160 65 180'
-      ],
-    }
-  },
-  methods: {
-    isKind: function(prop, targ) {
-      var result = false;
-      if (prop == targ)
-        result = true;
-      return result;
-    },
-    newController: function(kind) {
-      console.log(`Bottom ${kind} controller`);
-    }
-  }
-})
 
 var app = new Vue({
   el: '#app',
@@ -341,7 +258,15 @@ var app = new Vue({
      ifoneword: /^((\d*\_*)|([A-Za-z]))[a-z]*$/,
      onesort: /[^\_]*$/,
      keywordOld: /([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)/gm,
-   }
+   },
+   tags: {
+     pretty: [],
+     raw: [],
+     typeOrder: [],
+     indexOrder: [],
+     nameOrder: [],
+     uniquePart: [],
+   },
   },
   mounted: function () {
     var self = this;
@@ -354,11 +279,11 @@ var app = new Vue({
   },
   methods: {
     getKeyWordsFromSelectedLayers: function(nameList) {
-      var result = this.getKeyWords(nameList)
+      return this.getKeyWords(nameList);
     },
-    // from color button
     getNames: function(e) {
       var result = this.getKeyWords(e);
+      // if (!result.isArray())
       this.layerList = e.split(',');
       this.layerList.unshift('start');
       // console.log(this.layerList);
@@ -399,7 +324,9 @@ var app = new Vue({
         }
       }
       console.log(mirror);
-      csInterface.evalScript(`assignLabelsAsColorList('${mirror.toString()}')`)
+      var typo = this.$root.tags.typeOrder;
+      console.log(typo);
+      // csInterface.evalScript(`assignLabelsAsColorList('${typo}')`)
       this.postNullify(['bg', '^00_']);
     },
     postNullify: function(regs) {
@@ -416,6 +343,8 @@ var app = new Vue({
       csInterface.evalScript(`nullifyLayers('${message}')`)
     },
     getKeyWords: function(nameList) {
+      console.log(nameList);
+      // if (!nameList.isArray())
       nameList = nameList.split(',');
       var allKeyWords = [];
       for (var i = 0; i < nameList.length; i++) {
@@ -430,9 +359,17 @@ var app = new Vue({
           }
         }
       }
-      var uniques = this.removeDuplicateKeywords(allKeyWords);
-      var uniqueLimbs = this.sortByType(uniques, 'limb');
-      return this.identifyTypesInLayers(nameList, uniqueLimbs);
+      this.tags.nameList = nameList;
+      this.tags.pretty = this.removeDuplicateKeywords(allKeyWords);
+      this.tags.raw = allKeyWords;
+      this.tags.uniquePart = this.sortByType(this.tags.pretty, 'limb');
+
+      // BROKEN
+      this.tags.typeOrder = this.identifyTypesInLayers(nameList, this.tags.pretty);
+      // console.log(this.tags.pretty);
+      // console.log(this.tags.raw);
+      console.log(this.tags.typeOrder);
+      return this.removeDuplicateKeywords(allKeyWords);
     },
     sortByType: function(arr, type) {
       var omit = ['N', 'S', 'E', 'W', 'n', 's', 'e', 'w', 'L', 'l', 'Left', 'left', 'R', 'r', 'Right', 'right'];
