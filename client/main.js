@@ -74,11 +74,12 @@ Vue.component('taglist', {
         }
         this.tagList.push(child);
       }
-      // console.log(this.$root.tags.pretty);
-      // console.log(this.$root.tags.raw);
-      // console.log(this.$root.tags.indexOrder);
-      // console.log(this.$root.tags.nameOrder);
-      // console.log(this.$root.tags.typeOrder);
+      console.log('Tags are:');
+      console.log(this.$root.tags.pretty);
+      console.log(this.$root.tags.raw);
+      console.log(this.$root.tags.indexOrder);
+      console.log(this.$root.tags.nameOrder);
+      console.log(this.$root.tags.typeOrder);
     }
   },
   computed: {
@@ -148,11 +149,9 @@ Vue.component('selector', {
       console.log('Updated sibling');
     },
     readLayerNameList: function(result) {
-      console.log(result);
-      // console.log('Hello?');
       this.selection.tagKeys = [], this.selection.tagNames = [];
       if (result !== '0') {
-        console.log('Hello?');
+        // console.log('Something is here');
         var totals = result.split(',');
         var reconstructed = [];
         for (var i = 0; i < totals.length; i++)
@@ -162,9 +161,10 @@ Vue.component('selector', {
           this.selection.tagNames.push(reconstructed[e][1])
         }
         var self = this;
-        console.log(self.selection.tagNames);
+        // console.log(self.selection.tagNames);
         var tags = this.$root.getKeyWordsFromSelectedLayers(self.selection.tagNames);
         // console.log(tags);
+        console.log('Updating tags');
         Event.$emit('updateTags');
         this.$root.tags.indexOrder = this.selection.tagKeys;
         this.$root.tags.nameOrder = this.selection.tagNames;
@@ -343,9 +343,9 @@ var app = new Vue({
       csInterface.evalScript(`nullifyLayers('${message}')`)
     },
     getKeyWords: function(nameList) {
-      console.log(nameList);
-      // if (!nameList.isArray())
-      nameList = nameList.split(',');
+      // This was initially a string, but retroactively given arrays.
+      // The problem was the entry data all along
+      // console.log(nameList);
       var allKeyWords = [];
       for (var i = 0; i < nameList.length; i++) {
         if (this.rx.ifoneword.test(nameList[i])) {
@@ -368,7 +368,7 @@ var app = new Vue({
       this.tags.typeOrder = this.identifyTypesInLayers(nameList, this.tags.pretty);
       // console.log(this.tags.pretty);
       // console.log(this.tags.raw);
-      console.log(this.tags.typeOrder);
+      // console.log(this.tags.typeOrder);
       return this.removeDuplicateKeywords(allKeyWords);
     },
     sortByType: function(arr, type) {

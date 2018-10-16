@@ -1,4 +1,4 @@
-//
+// Fix locked layer glitch on kickstart
 var thisProject = app.project.activeItem;
 var selected = app.project.selection;
 function getCurrentComp() {
@@ -15,21 +15,27 @@ function getSelectedLayersLength() {
     }
     return result;
 }
-// Broken
 function getSelectedLayerNames() {
     var results = [], activeItem = app.project.activeItem;
     if (activeItem != null && activeItem instanceof CompItem) {
         if (activeItem.selectedLayers.length > 0) {
-            console.log(activeItem.selectedLayers[0]);
+            // console.log('hello');
+            // console.log(activeItem.selectedLayers[0]);
             for (var i = 0; i < activeItem.selectedLayers.length; i++) {
                 try {
-                    console.log(i);
-                    // var child = activeItem.selectedLayers[i];
-                    // console.log(child);
-                    console.log('This errors when number is needed');
+                    // console.log(activeItem.selectedLayers[i].index);
+                    // if (activeItem.selectedLayers[i].property("sourceText") === null) {
+                    //   console.log('Not a text layer');
+                    //   console.log(i);
+                    var child = activeItem.selectedLayers[i];
+                    //   console.log(child);
+                    //   // console.log('This errors when number is needed');
                     // if (child instanceof AVLayer) {
-                    // console.log('This never shows');
-                    // results.push(child.index + ";" + child.name)
+                    console.log('This is working');
+                    results.push(child.index + ";" + child.name);
+                    // }
+                    // } else {
+                    //   console.log('Found a text layer');
                     // }
                 }
                 catch (err) {
@@ -39,7 +45,7 @@ function getSelectedLayerNames() {
         }
     }
     // This turns up blank
-    console.log(results);
+    // console.log(results);
     if (results.length)
         return results;
     else
@@ -93,8 +99,8 @@ function assignLabelsAsColorList(colorList) {
         thisLayer.label = Number(targ);
     }
 }
-function changeLabels(colorOrder) {
-    // var colorOrder = [0, 1, 9, 8, 10, 14, 3, 15];
+function changeLabels() {
+    var colorOrder = [0, 1, 9, 8, 10, 14, 3, 15];
     var count = 0;
     for (var i = 1; i <= thisProject.layers.length; i++) {
         count++;

@@ -2,13 +2,13 @@
 
 Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.
 
-## proto UI
-![](https://i.imgur.com/sHLUUX3.png)
+## UI goal
+![](https://i.imgur.com/e1tEIl6.png)
 
-## selection change detection
-![](https://thumbs.gfycat.com/RegalIllCassowary-size_restricted.gif)
+## selection change and tag detection
+![](https://thumbs.gfycat.com/CarefreeShimmeringDegu-size_restricted.gif)
 
-## kickstart
+## kickstart and color grouping
 ![demo](https://thumbs.gfycat.com/FantasticUnfoldedBlueandgoldmackaw-size_restricted.gif)
 
 ## to-do
