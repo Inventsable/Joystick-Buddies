@@ -2,17 +2,17 @@
 
 Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.
 
-## UI goal
-![](https://i.imgur.com/e1tEIl6.png)
-
-## selection change and tag detection
+## tag in selection by frequency of tag:
 ![](https://thumbs.gfycat.com/CarefreeShimmeringDegu-size_restricted.gif)
+
+## screen, toolbar and mousewheel up-down for grouping tag labels
+![](https://thumbs.gfycat.com/CheeryCavernousCowbird-size_restricted.gif)
 
 ## kickstart and color grouping
 ![demo](https://thumbs.gfycat.com/FantasticUnfoldedBlueandgoldmackaw-size_restricted.gif)
 
 ## to-do
-* UI revamp > Finish grid outline and placement
+* ~~UI revamp > Finish grid outline and placement~~
 * UI revamp > Rebuild as vue components
 * Kickstart > Detect comp as riggable and prompt for kickstart
 * ~~Kickstart > Convert AI layers to vector, strip "Outlines" and delete originals.~~
@@ -24,9 +24,12 @@ Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector charact
 * ~~Tags > Detect common tags in layer names for limb and direction.~~
 * ~~Tags > Sort layer color labels by scoped number of common tags and type (limb/direction).~~
 * ~~Selection > Reactive selection length and change detection~~
-* Selection > Identify if selection has single tags like 'Brow' or 'Pupil' for corresponding Rig Recipe.
-* Selection > Generate total unique tag list within currently selected layer names, if multiple prompt creation of Rig Recipe.
-* Rig Recipe > If exist, detect if character style is line-art or solids.
+* ~~Selection > Identify if selection has single tags like 'Brow' or 'Pupil' for corresponding Rig Recipe.~~
+* ~~Selection > Generate total unique tag list within currently selected layer names.~~
+* Selection > Refactor to fix selection not changing when total length is unchanged. (1 > 1)
+* Selection > Refactor to determine if target should be Layers, Properties, or Items.
+* Selection > Prompt Rig Recipe components.
+* Rig Recipe > If exist, detect if character art style is line or solid.
 * Rig Recipe > Auto-rig pupils within eye bounds and set keyframes for Joystick.
 * Rig Recipe > Auto-rig brows for blinking and generic sad/mad/flat Slider keyframes.
 * Rig Recipe > Prompt doubling of strokes with Trim Path slider to create sleeves on line-art arms and legs.

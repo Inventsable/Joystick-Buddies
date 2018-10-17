@@ -31,6 +31,15 @@ Vue.component('rig', {
     action: function(str) {
       // console.log(`should target ${str}()`);
       csInterface.evalScript(`${str}()`)
+    },
+    changeAnno: function(str) {
+      console.log(str);
+      console.log(this.$root.msg);
+      this.anno = 'new ' + str;
+    },
+    mounted() {
+      var self = this;
+      Event.$on('updateAnno', self.changeAnno)
     }
   }
 })
@@ -66,7 +75,7 @@ Vue.component('taglist', {
     },
     constructTags: function() {
       this.tagList = [];
-      console.log('Hello?');
+      // console.log('Hello?');
       for (var i = 0; i < this.$root.tags.pretty.length; i++) {
         var child = {
           key: i,
@@ -75,11 +84,11 @@ Vue.component('taglist', {
         this.tagList.push(child);
       }
       console.log('Tags are:');
-      console.log(this.$root.tags.pretty);
-      console.log(this.$root.tags.raw);
-      console.log(this.$root.tags.indexOrder);
-      console.log(this.$root.tags.nameOrder);
-      console.log(this.$root.tags.typeOrder);
+      console.log(this.$root.tags);
+      // console.log(this.$root.tags.raw);
+      // console.log(this.$root.tags.indexOrder);
+      // console.log(this.$root.tags.nameOrder);
+      // console.log(this.$root.tags.typeOrder);
     }
   },
   computed: {
@@ -216,34 +225,172 @@ Vue.component('selector', {
   }
 })
 
+
+
 Vue.component('labels', {
   template: `
     <div class="head-B">
-      <div @click="recolor" class="labels-btn">
-        <span class="omo-icon-labels"></span>
-      </div>
-      <div class="head-B-suffix">
-        <div class="head-B-suffix-top">
-          <div class="head-B-suffix-top-prefix"></div>
-          <div class="head-B-suffix-top-suffix"></div>
+      <div class="head-B-top">
+        <div @click="resetColorLabels" class="labels-btn">
+          <span class="omo-icon-labels"></span>
         </div>
-        <div class="head-B-suffix-btm"></div>
+        <div class="labelclimber-wrap">
+          <div class="labelclimber" @mouseover="activateScroll" @mouseout="deactivateScroll">
+            <div
+              class="label-lengthUp"
+              @click="plusLabel"><span class="omo-icon-arrowN"></span>
+            </div>
+            <div class="label-length">{{labels.length}}</div>
+            <div
+              class="label-lengthDown"
+              @click="minusLabel"><span class="omo-icon-arrowS"></span>
+            </div>
+          </div>
+          <div class="labelclimber-preview">
+            <div v-for="label in labels" :class="labelClass(label)"></div>
+          </div>
+        </div>
       </div>
     </div>
   `,
+  data() {
+    // labelOrder: [0, 1, 9, 8, 10, 14, 3, 15],
+    return {
+      labelsLength: 5,
+      maxLength: 17,
+      canScroll: false,
+      labels: [
+        { val: 1, key: 0 },
+        { val: 9, key: 1 },
+        { val: 8, key: 2 },
+        { val: 10, key: 3 },
+        { val: 14, key: 4 },
+      ],
+      labelColors:
+      ['#666666', '#b53838', '#e4d84c', '#a9cbc7', '#e5bcc9',
+      '#a9a9ca', '#e7c19e', '#b3c7b3', '#677de0', '#4aa44c',
+      '#8e2c9a', '#e8920d', '#7f452a', '#f46dd6', '#3da2a5',
+      '#a89677', '#1e401e']
+    }
+  },
+  computed :{
+    labelsUsed: function() {
+      var parent = [];
+      for (var i = 0; i < this.labels.length; i++) {
+        parent.push(this.labels[i].val);
+      }
+      return parent;
+    },
+    labelsNotUsed: function() {
+      var parent = [];
+      for (var e = 0; e < this.maxLength; e++) {
+        var labels = this.labelsUsed;
+        if (!labels.includes(e))
+          parent.push(e)
+      }
+      return parent;
+    }
+  },
   methods: {
+    activateScroll: function() {
+      this.canScroll = true;
+    },
+    deactivateScroll: function() {
+      this.canScroll = false;
+    },
+    handleScroll: function(evt) {
+      if (this.canScroll) {
+        if (evt.deltaY < -1)
+          this.plusLabel();
+        else if (evt.deltaY > 1)
+          this.minusLabel();
+      }
+    },
+    minusLabel: function() {
+      this.labels.pop();
+      this.setCSSLength();
+    },
+    plusLabel: function() {
+      var self = this, newlength = this.labels.length + 1;
+      this.labels.push({val: this.getRandomLabel(), key: newlength})
+      this.setCSSLength();
+    },
+    setCSSLength: function() {
+      this.$root.setCSS('labels-length', this.labels.length)
+    },
+    labelClass: function(label) {
+      var style = 'label-Mock-' + label.val;
+      return style;
+    },
     recolor: function(e) {
-      csInterface.evalScript(`colorcode()`, this.$root.getNames)
+      console.log('Recolor these by ');
+      var self = this, typeOrder = this.$root.tags.typeOrder, indexOrder = this.$root.tags.indexOrder;
+      // csInterface.evalScript(`colorcode()`, this.$root.getNames)
+      console.log(typeOrder);
     },
     resetColorLabels: function() {
       csInterface.evalScript(`displayColorLabels()`)
     },
+    getRandomLabel: function() {
+      var newnum = Math.floor(Math.random() * Math.floor(this.labelsNotUsed.length));
+      var newlabel = this.labelsNotUsed[newnum];
+      return newlabel;
+    }
+  },
+  mounted() {
+    var self = this;
+    document.addEventListener('mousewheel', this.handleScroll)
+  }
+})
+
+Vue.component('screen', {
+  template: `
+    <div class="cGrid">
+      <div class="screenBody"></div>
+      <div class="screenToolbar">
+        <div v-for="btn in btns" @mouseover="broadcast(btn)" class="screenToolbarBtn">
+          <span :class="getIcon(btn)"></span>
+        </div>
+      </div>
+    </div>
+  `,
+  data() {
+    return {
+      msg: 'test',
+      btns: [
+        {name: 'orb', key: 0},
+        {name: 'cube', key: 1},
+        {name: 'sliders', key: 2},
+        {name: 'joystick', key: 3},
+        {name: 'gaze', key: 4},
+        {name: 'bone', key: 5},
+        // {name: 'boxes', key: 6},
+        // {name: 'rotate', key: 7},
+      ],
+    }
+  },
+  methods: {
+    broadcast: function(btn) {
+      console.log('broadcasting');
+      this.$root.msg = btn.name;
+      Event.$emit('updateAnno');
+    },
+    getIcon: function(btn) {
+      return 'omo-icon-' + btn.name;
+    },
+    updateCSSToolbar: function() {
+      return this.$root.setCSS('toolbar-length', this.btns.length)
+    },
+  },
+  mounted() {
+    this.updateCSSToolbar();
   }
 })
 
 
 var app = new Vue({
   el: '#app',
+  msg: 'none',
   data: {
    fullHeight: document.documentElement.clientHeight,
    fullWidth: document.documentElement.clientWidth,
@@ -323,11 +470,14 @@ var app = new Vue({
             mirror.push(targLabel);
         }
       }
+      console.log('Mirror');
       console.log(mirror);
       var typo = this.$root.tags.typeOrder;
+      console.log('Typelist:');
       console.log(typo);
+      changeLabels()
       // csInterface.evalScript(`assignLabelsAsColorList('${typo}')`)
-      this.postNullify(['bg', '^00_']);
+      // this.postNullify(['bg', '^00_']);
     },
     postNullify: function(regs) {
       // console.log(this.layerList);
@@ -383,6 +533,9 @@ var app = new Vue({
     },
     identifyTypesInLayers: function(nameList, typeList) {
       var results = [], typeOrder = [];
+      console.log(nameList);
+      console.log(typeList);
+      // console.log(results);
       for (var i = 0; i < nameList.length; i++) {
         var str = nameList[i];
         results = [];
@@ -392,12 +545,14 @@ var app = new Vue({
         }
         var match = 0;
         for (var n = 0; n < results.length; n++) {
+          console.log(results);
           if (results[n]) {
             match = n;
           }
         }
         typeOrder.push(match)
       }
+      console.log(typeOrder);
       return typeOrder;
     },
     // filterArrayNegative(haystack, needleList) = haystack[no needles]
@@ -428,5 +583,11 @@ var app = new Vue({
       }, {})
       return sorted = Object.keys(uniq).sort((a, b) => uniq[a] < uniq[b])
     },
+    getCSS(prop) {
+      return window.getComputedStyle(document.documentElement).getPropertyValue('--' + prop);
+    },
+    setCSS(prop, data){
+      document.documentElement.style.setProperty('--' + prop, data);
+    }
   }
 });

@@ -133,11 +133,13 @@ function scanLayerNames() {
   return nameList;
 }
 
-function colorcode() {
+function colorcode(parent) {
+  console.log(parent);
   thisProject = app.project.activeItem;
   // displayColorLabels();
-  // assignLabelPerType([1,2,4,5,8,9], 0);
-  return scanLayerNames();
+  console.log('Changing to test');
+  assignLabelPerType([1,2,4,5,8,9], 2);
+  // return scanLayerNames();
 }
 
 function kickstart() {
