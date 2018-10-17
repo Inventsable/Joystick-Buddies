@@ -3,7 +3,7 @@
 Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.
 
 ## tag in selection by frequency of tag:
-![](https://thumbs.gfycat.com/CarefreeShimmeringDegu-size_restricted.gif)
+![](https://thumbs.gfycat.com/CavernousIdenticalAstrangiacoral-size_restricted.gif)
 
 ## screen, toolbar and mousewheel up-down for grouping tag labels
 ![](https://thumbs.gfycat.com/CheeryCavernousCowbird-size_restricted.gif)
