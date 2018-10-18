@@ -76,15 +76,15 @@ Vue.component('taglist', {
     constructTags: function() {
       this.tagList = [];
       // console.log('Hello?');
-      for (var i = 0; i < this.$root.tags.pretty.length; i++) {
+      for (var i = 0; i < this.$root.tags.master.length; i++) {
         var child = {
           key: i,
-          name: this.$root.tags.pretty[i],
+          name: this.$root.tags.master[i],
         }
         this.tagList.push(child);
       }
-      console.log('Tags are:');
-      console.log(this.$root.tags);
+      console.log('Current tags are:');
+      console.log(this.$root.tags.master);
       // console.log(this.$root.tags.raw);
       // console.log(this.$root.tags.indexOrder);
       // console.log(this.$root.tags.nameOrder);
@@ -117,15 +117,15 @@ Vue.component('selector', {
           <span class="omo-icon-cursor"></span>
         </div>
       </div>
-      <div class="aSelect-suffix">
-        <div @click="produceLayerList" class="aSelect-suffix-top">
-          <span class="omo-icon-layer"></span>
-          <span>layers</span>
-        </div>
-        <div class="aSelect-suffix-btm">{{selection.length}}</div>
-      </div>
     </div>
   `,
+  // <div class="aSelect-suffix">
+  // <div @click="test" class="aSelect-suffix-top">
+  // <span class="omo-icon-layer"></span>
+  // <span>layers</span>
+  // </div>
+  // <div class="aSelect-suffix-btm">{{selection.length}}</div>
+  // </div>
   data() {
     return {
       scanning: false,
@@ -184,10 +184,13 @@ Vue.component('selector', {
     Event.$on('updateTags', this.updateTags)
   },
   methods: {
-    updateTags: function(data) {
-      console.log('Updated sibling');
+    test: function() {
+      console.log('This is blank and does nothing');
     },
-    selectedLayerList: function(layers) {
+    updateTags: function(data) {
+      // console.log('Updated sibling');
+    },
+    selectedLayerPropList: function(layers) {
       var results = [];
       if (layers.length) {
         for (var i = 0; i < layers.length; i++) {
@@ -211,6 +214,7 @@ Vue.component('selector', {
       if (type == 'layer') {
         clone['locked'] = child.locked;
       } else if (type == 'prop') {
+        // console.log('this is a prop');
         clone['depth'] = child.depth;
         clone['parent'] = child.parent;
       }
@@ -228,89 +232,51 @@ Vue.component('selector', {
         if (isEqual(shadowprops, msg.props.raw)) {
           return true;
         } else {
+          this.selection.props.raw = msg.props.raw;
           if (msg.props.raw.length) {
             var newProps = []
+            console.log('Prop details are:');
             for (var p = 0; p < msg.props.raw.length; p++) {
               var clone = this.selectionClone(msg.props.raw[p], 'prop');
               newProps.push(clone)
               console.log(clone);
             }
+            console.log('Total selected props are:');
+            console.log(newProps);
           }
           this.selection.props.cloned = newProps;
-          console.log('result:');
-          console.log(this.selection.props.raw);
-          var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerList(msg.props.raw));
+          // these need to be additive instead of exclusionary
+
+          // You should be collecting full prop name instead of KeyWord. Anchor Point produces 3 keywords, one of which a space character
+          var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerPropList(msg.props.raw));
+          console.log('Prop tags:');
           console.log(tags);
-          Event.$emit('updateTags');
+          // Event.$emit('updateTags');
         }
       } else {
         this.selection.layers.raw = msg.layers.raw;
         if (msg.layers.raw.length) {
           var newLayers = [];
+          console.log('Layer details are:');
           for (var i = 0; i < msg.layers.raw.length; i++) {
             var clone = this.selectionClone(msg.layers.raw[i], 'layer');
             newLayers.push(clone);
+            console.log(clone);
           }
+          console.log('Total selected layers are:');
+          console.log(newLayers);
           this.selection.layers.cloned = newLayers;
         }
-        var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerList(msg.layers.raw));
+        var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerPropList(msg.layers.raw));
+        console.log('Layer tags:');
         console.log(tags);
+        // console.log('Hello?');
         Event.$emit('updateTags');
       }
     },
     selectionCheck: function() {
       var self = this;
       csInterface.evalScript(`scanSelection()`, self.selectionRead)
-    },
-    // DEPRECATED
-    readLayerNameList: function(result) {
-      this.selection.tagKeys = [], this.selection.tagNames = [];
-      if (result !== '0') {
-        var totals = result.split(',');
-        var reconstructed = [];
-        for (var i = 0; i < totals.length; i++)
-          reconstructed.push(totals[i].split(';'))
-        for (var e = 0; e < reconstructed.length; e++) {
-          this.selection.tagKeys.push(Number(reconstructed[e][0]))
-          this.selection.tagNames.push(reconstructed[e][1])
-        }
-        var self = this;
-        // console.log(self.selection.tagNames);
-        var tags = this.$root.getKeyWordsFromSelectedLayers(self.selection.tagNames);
-        // console.log(tags);
-        console.log('Updating tags');
-        Event.$emit('updateTags');
-        this.$root.tags.indexOrder = this.selection.tagKeys;
-        this.$root.tags.nameOrder = this.selection.tagNames;
-        // console.log(tags);
-      } else {
-        console.log('Clearing');
-        Event.$emit('clearTags');
-      }
-    },
-    getSelectedLayerNameList: function() {
-      var self = this;
-      csInterface.evalScript(`getSelectedLayerNames()`, self.readLayerNameList)
-    },
-    produceLayerList: function() {
-      var self = this;
-      csInterface.evalScript(`getSelectedLayersLength()`, self.readLayerList)
-    },
-    readLayerList: function(data) {
-      if (data)
-        data = data.split(',');
-      return data;
-    },
-    hasSelection: function() {
-      var self = this;
-      csInterface.evalScript(`getSelectedLayersLength()`, self.compareSelectionLength)
-    },
-    compareSelectionLength: function(e) {
-      if (this.selection.length !== e) {
-        // console.log('Changed');
-        this.getSelectedLayerNameList();
-      }
-      this.selection.length = e;
     },
     areEqual: function(arr1, arr2) {
       console.log(arr1);
@@ -543,6 +509,7 @@ var app = new Vue({
   el: '#app',
   msg: 'none',
   data: {
+    // delete most of these
    fullHeight: document.documentElement.clientHeight,
    fullWidth: document.documentElement.clientWidth,
    cs: new CSInterface(),
@@ -557,7 +524,7 @@ var app = new Vue({
      onesort: /[^\_]*$/,
      keywordOld: /([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)/gm,
    },
-   // Needs complete rewrite inline with tags component's newlists
+   // Needs complete rewrite inline with tag component's newlists
    tags: {
      pretty: [],
      raw: [],
@@ -565,6 +532,7 @@ var app = new Vue({
      indexOrder: [],
      nameOrder: [],
      uniquePart: [],
+     master: [],
    },
   },
   mounted: function () {
@@ -578,7 +546,8 @@ var app = new Vue({
   },
   methods: {
     getKeyWordsFromSelectedLayers: function(nameList) {
-      return this.getKeyWords(nameList);
+      this.tags.master = this.getKeyWords(nameList);
+      return this.tags.master;
     },
     getNames: function(e) {
       var result = this.getKeyWords(e);
@@ -588,6 +557,8 @@ var app = new Vue({
       // console.log(this.layerList);
       this.defineColorsFromMatchList(result, 5);
     },
+
+    // BROKEN
     defineColorsFromMatchList: function(matchList, length) {
       var uniques = [], labelList = [];
       for (var i = 0; i < matchList.length; i++) {
@@ -622,12 +593,12 @@ var app = new Vue({
             mirror.push(targLabel);
         }
       }
-      console.log('Mirror');
-      console.log(mirror);
+      // console.log('Mirror');
+      // console.log(mirror);
       var typo = this.$root.tags.typeOrder;
-      console.log('Typelist:');
-      console.log(typo);
-      changeLabels()
+      // console.log('Typelist:');
+      // console.log(typo);
+      // csInterface.evalScript(`changeLabels()`, this.$root.getNames)
       // csInterface.evalScript(`assignLabelsAsColorList('${typo}')`)
       // this.postNullify(['bg', '^00_']);
     },
@@ -699,8 +670,8 @@ var app = new Vue({
     },
     identifyTypesInLayers: function(nameList, typeList) {
       var results = [], typeOrder = [];
-      console.log(nameList);
-      console.log(typeList);
+      // console.log(nameList);
+      // console.log(typeList);
       // console.log(results);
       for (var i = 0; i < nameList.length; i++) {
         var str = nameList[i];
@@ -711,14 +682,15 @@ var app = new Vue({
         }
         var match = 0;
         for (var n = 0; n < results.length; n++) {
-          console.log(results);
+          // console.log(results);
           if (results[n]) {
             match = n;
           }
         }
         typeOrder.push(match)
       }
-      console.log(typeOrder);
+      // console.log('type order:');
+      // console.log(typeOrder);
       return typeOrder;
     },
     // filterArrayNegative(haystack, needleList) = haystack[no needles]
