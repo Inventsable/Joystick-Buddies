@@ -7,6 +7,48 @@ function getCurrentComp() {
 function getActiveItemIndex() {
     return findCompByName(getCurrentComp());
 }
+function scanSelection() {
+    var activeItem = app.project.activeItem;
+    var result = {
+        layers: {
+            raw: [],
+            length: 0
+        },
+        props: {
+            raw: [],
+            length: 0
+        },
+        valid: false
+    };
+    if (activeItem != null && activeItem instanceof CompItem) {
+        if (activeItem.selectedLayers.length > 0) {
+            result.layers.length = activeItem.selectedLayers.length;
+            for (var i = 0; i < activeItem.selectedLayers.length; i++) {
+                var layer = activeItem.selectedLayers[i];
+                var child = {
+                    name: layer.name,
+                    index: layer.index,
+                    locked: layer.locked
+                };
+                result.layers.raw.push(child);
+            }
+            if (activeItem.selectedProperties.length > 0) {
+                result.props.length = activeItem.selectedProperties.length;
+                for (var e = 0; e < activeItem.selectedProperties.length; e++) {
+                    var prop = activeItem.selectedProperties[e];
+                    var child = {
+                        name: prop.name,
+                        index: prop.propertyIndex,
+                        depth: prop.propertyDepth,
+                        parent: prop.propertyGroup().name
+                    };
+                    result.props.raw.push(child);
+                }
+            }
+        }
+    }
+    return JSON.stringify(result);
+}
 function getSelectedLayersLength() {
     var activeItem = app.project.activeItem, result = 0;
     if (activeItem != null && activeItem instanceof CompItem) {

@@ -128,13 +128,22 @@ Vue.component('selector', {
   `,
   data() {
     return {
-      indexList: [],
       scanning: false,
       selection: {
         tagNames: [],
         tagKeys: [],
         keyWords: [],
-        length: 0,
+        total: 0,
+        layers: {
+          raw: [],
+          cloned: [],
+          length: 0,
+        },
+        props: {
+          raw: [],
+          cloned: [],
+          length: 0,
+        }
       },
       timer: {
         selection: null,
@@ -147,6 +156,27 @@ Vue.component('selector', {
     },
     scanClass: function() {
       return 'btn-alt-' + this.scanning;
+    },
+    total: function() {
+      return this.selection.layers.length + this.selection.props.length;
+    },
+    selectedPropsList: function() {
+      var results = [];
+      if (this.selection.props.length) {
+        for (var i = 0; i < this.selection.layers.length; i++) {
+          results.push(this.selection.props[i].name);
+        }
+      }
+      return results;
+    },
+    selectedTagsList: function() {
+      var results = [];
+      // if (this.selection.props.length) {
+      //   for (var i = 0; i < this.selection.layers.length; i++) {
+      //     results.push(this.selection.props[i].name);
+      //   }
+      // }
+      return results;
     }
   },
   mounted() {
@@ -157,10 +187,85 @@ Vue.component('selector', {
     updateTags: function(data) {
       console.log('Updated sibling');
     },
+    selectedLayerList: function(layers) {
+      var results = [];
+      if (layers.length) {
+        for (var i = 0; i < layers.length; i++) {
+          // console.log();
+          results.push(layers[i].name);
+        }
+      }
+      return results;
+    },
+    generateTags: function(name) {
+      return this.$root.getKeyWordsMono(name);
+    },
+    selectionClone: function(child, type) {
+      var mirror = [], self = this;
+      var clone = {
+        name: child.name,
+        index: child.index,
+        tags: self.generateTags(child.name),
+        locked: false,
+      }
+      if (type == 'layer') {
+        clone['locked'] = child.locked;
+      } else if (type == 'prop') {
+        clone['depth'] = child.depth;
+        clone['parent'] = child.parent;
+      }
+      return clone;
+    },
+    // Too long and messy. Should update root array for tags to combine props/layers
+    selectionRead: function(result) {
+      var msg = JSON.parse(result), self = this;
+      this.selection.layers.length = msg.layers.length;
+      this.selection.props.length = msg.props.length;
+      var shadowlayers = this.selection.layers.raw, shadowprops = this.selection.props.raw;
+      // console.log('initial:');
+      // console.log(shadowprops);
+      if (isEqual(shadowlayers, msg.layers.raw)) {
+        if (isEqual(shadowprops, msg.props.raw)) {
+          return true;
+        } else {
+          if (msg.props.raw.length) {
+            var newProps = []
+            for (var p = 0; p < msg.props.raw.length; p++) {
+              var clone = this.selectionClone(msg.props.raw[p], 'prop');
+              newProps.push(clone)
+              console.log(clone);
+            }
+          }
+          this.selection.props.cloned = newProps;
+          console.log('result:');
+          console.log(this.selection.props.raw);
+          var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerList(msg.props.raw));
+          console.log(tags);
+          Event.$emit('updateTags');
+        }
+      } else {
+        this.selection.layers.raw = msg.layers.raw;
+        if (msg.layers.raw.length) {
+          var newLayers = [];
+          for (var i = 0; i < msg.layers.raw.length; i++) {
+            var clone = this.selectionClone(msg.layers.raw[i], 'layer');
+            newLayers.push(clone);
+          }
+          this.selection.layers.cloned = newLayers;
+        }
+        var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerList(msg.layers.raw));
+        console.log(tags);
+        Event.$emit('updateTags');
+      }
+    },
+    selectionCheck: function() {
+      var self = this;
+      csInterface.evalScript(`scanSelection()`, self.selectionRead)
+    },
+    // DEPRECATED
     readLayerNameList: function(result) {
       this.selection.tagKeys = [], this.selection.tagNames = [];
       if (result !== '0') {
-        // console.log('Something is here');
         var totals = result.split(',');
         var reconstructed = [];
         for (var i = 0; i < totals.length; i++)
@@ -207,10 +312,22 @@ Vue.component('selector', {
       }
       this.selection.length = e;
     },
+    areEqual: function(arr1, arr2) {
+      console.log(arr1);
+      var result = true;
+      // if ( arr1.length !== arr2.length )
+      //     result = false;
+      for(var i = arr1.length; i--;) {
+          if(arr1[i] !== arr2[i])
+              result = false;
+      }
+      return result;
+    },
     scanLayers: function(state) {
       var self = this;
       if (state)
-        this.timer.selection = setInterval(self.hasSelection, 500);
+        this.timer.selection = setInterval(self.selectionCheck, 500);
+        // this.timer.selection = setInterval(self.hasSelection, 500);
     },
     stopLayersScan: function() {
       clearInterval(this.timer.selection);
@@ -225,6 +342,40 @@ Vue.component('selector', {
   }
 })
 
+// https://gomakethings.com/check-if-two-arrays-or-objects-are-equal-with-javascript/
+var isEqual = function (value, other) {
+	var type = Object.prototype.toString.call(value);
+	if (type !== Object.prototype.toString.call(other)) return false;
+	if (['[object Array]', '[object Object]'].indexOf(type) < 0) return false;
+	var valueLen = type === '[object Array]' ? value.length : Object.keys(value).length;
+	var otherLen = type === '[object Array]' ? other.length : Object.keys(other).length;
+	if (valueLen !== otherLen) return false;
+	var compare = function (item1, item2) {
+		var itemType = Object.prototype.toString.call(item1);
+		if (['[object Array]', '[object Object]'].indexOf(itemType) >= 0) {
+			if (!isEqual(item1, item2)) return false;
+		}	else {
+			if (itemType !== Object.prototype.toString.call(item2)) return false;
+			if (itemType === '[object Function]') {
+				if (item1.toString() !== item2.toString()) return false;
+			} else {
+				if (item1 !== item2) return false;
+			}
+		}
+	};
+	if (type === '[object Array]') {
+		for (var i = 0; i < valueLen; i++) {
+			if (compare(value[i], other[i]) === false) return false;
+		}
+	} else {
+		for (var key in value) {
+			if (value.hasOwnProperty(key)) {
+				if (compare(value[key], other[key]) === false) return false;
+			}
+		}
+	}
+	return true;
+};
 
 
 Vue.component('labels', {
@@ -406,6 +557,7 @@ var app = new Vue({
      onesort: /[^\_]*$/,
      keywordOld: /([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)/gm,
    },
+   // Needs complete rewrite inline with tags component's newlists
    tags: {
      pretty: [],
      raw: [],
@@ -491,6 +643,20 @@ var app = new Vue({
       }
       var message = nulltargs.join(',');
       csInterface.evalScript(`nullifyLayers('${message}')`)
+    },
+    getKeyWordsMono: function(name) {
+      var allKeyWords = [];
+      if (this.rx.ifoneword.test(name)) {
+        var matches = name.match(this.rx.onesort);
+        matches = matches[0];
+        allKeyWords.push(matches);
+      } else if (this.rx.keysort.test(name)) {
+        var matches = name.match(this.rx.keysort);
+        for (var n = 0; n < matches.length; n++) {
+          allKeyWords.push(matches[n]);
+        }
+      }
+      return allKeyWords;
     },
     getKeyWords: function(nameList) {
       // This was initially a string, but retroactively given arrays.
