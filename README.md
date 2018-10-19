@@ -1,19 +1,15 @@
-# Joystick Buddies
+# ~~Joystick Buddies~~
+~~Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.~~
 
-Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector characters and optimizing workflow throughout.
-
-## tag in selection by frequency of tag:
-![](https://thumbs.gfycat.com/CavernousIdenticalAstrangiacoral-size_restricted.gif)
-
-## screen, toolbar and mousewheel up-down for grouping tag labels
-![](https://thumbs.gfycat.com/CheeryCavernousCowbird-size_restricted.gif)
-
-## kickstart and color grouping
-![demo](https://thumbs.gfycat.com/FantasticUnfoldedBlueandgoldmackaw-size_restricted.gif)
+# Rebooting as Selectron
+![](https://thumbs.gfycat.com/EmotionalSkeletalGecko-size_restricted.gif)
 
 ## to-do
+
+* Create detailed schematic notes for selectron.
+* Graveyard deprecated code to `dead.js|css`
 * ~~UI revamp > Finish grid outline and placement~~
-* UI revamp > Rebuild as vue components
+* ~~UI revamp > Rebuild as vue components~~
 * Kickstart > Detect comp as riggable and prompt for kickstart
 * ~~Kickstart > Convert AI layers to vector, strip "Outlines" and delete originals.~~
 * ~~Kickstart > Discover related layers via dynamic keywords and auto-assign matching color labels.~~
@@ -26,9 +22,9 @@ Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector charact
 * ~~Selection > Reactive selection length and change detection~~
 * ~~Selection > Identify if selection has single tags like 'Brow' or 'Pupil' for corresponding Rig Recipe.~~
 * ~~Selection > Generate total unique tag list within currently selected layer names.~~
-* Selection > Refactor to fix selection not changing when total length is unchanged. (1 > 1)
-* Selection > Refactor to determine if target should be Layers, Properties, or Items.
-* Selection > Prompt Rig Recipe components.
+* ~~Selection > Refactor to fix selection not changing when total length is unchanged. (1 > 1)~~
+* ~~Selection > Refactor to determine if target should be Layers, Properties, or Items.~~
+* ~~Selection > Prompt Rig Recipe components.~~
 * Rig Recipe > If exist, detect if character art style is line or solid.
 * Rig Recipe > Auto-rig pupils within eye bounds and set keyframes for Joystick.
 * Rig Recipe > Auto-rig brows for blinking and generic sad/mad/flat Slider keyframes.
@@ -40,8 +36,8 @@ Companion panel to Bodymovin' and Joystick N' Sliders for rigging vector charact
 * Buddy > Scan selected properties, detect what expression control is needed and parse all matching property lists into corresponding expression control on Buddy
 * Find/Replace options for all layer, property names and expression references.
 * JnS > Detect all Joystick Origins and Nulls in comp, create Joystick[x,y] list.
-* JNS > Rename Slider Controls within Sliders to match corresponding target path.
-* JNS > Reset all Joysticks and/or Sliders to [0,0].
-* JNS > Style Joysticks to fills and delete dashed stroke, replace white null with shape layer and expression references to shape layer.
+* JnS > Rename Slider Controls within Sliders to match corresponding target path.
+* JnS > Reset all Joysticks and/or Sliders to [0,0].
+* JnS > Style Joysticks to fills and delete dashed stroke, replace white null with shape layer and expression references to shape layer.
 * BM > Auto-detect and warn of common errors.
 * BM > Scan to find no-class Fills/Strokes.

@@ -46,6 +46,7 @@ function scanSelection() {
            index: prop.propertyIndex,
            depth: prop.propertyDepth,
            parent: prop.propertyGroup().name,
+           layer: prop.toString,
          }
          result.props.raw.push(child);
        }

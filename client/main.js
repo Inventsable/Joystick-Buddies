@@ -3,46 +3,46 @@ loadUniversalJSXLibraries();
 loadJSX('compile.jsx');
 window.Event = new Vue();
 
-Vue.component('rig', {
-  template: `
-    <div @click="action(state)" class="head-C">
-      <div class="head-C-btn">
-        <span class="omo-icon-wrench"></span>
-      </div>
-      <span class="rig-anno">{{anno}}</span>
-    </div>
-  `,
-  data() {
-    return {
-      anno: 'kickstart',
-      state: 'kickstart',
-    }
-  },
-  methods: {
-    kickstart: function() {
-      var self = this;
-      csInterface.evalScript(`kickstart()`, self.recolor)
-    },
-    recolor: function(e) {
-      console.log('Recoloring');
-      console.log(e);
-      csInterface.evalScript(`changeLabels()`, this.$root.getNames)
-    },
-    action: function(str) {
-      // console.log(`should target ${str}()`);
-      csInterface.evalScript(`${str}()`)
-    },
-    changeAnno: function(str) {
-      console.log(str);
-      console.log(this.$root.msg);
-      this.anno = 'new ' + str;
-    },
-    mounted() {
-      var self = this;
-      Event.$on('updateAnno', self.changeAnno)
-    }
-  }
-})
+// Vue.component('rig', {
+//   template: `
+//     <div @click="action(state)" class="head-C">
+//       <div class="head-C-btn">
+//         <span class="omo-icon-wrench"></span>
+//       </div>
+//       <span class="rig-anno">{{anno}}</span>
+//     </div>
+//   `,
+//   data() {
+//     return {
+//       anno: 'kickstart',
+//       state: 'kickstart',
+//     }
+//   },
+//   methods: {
+//     kickstart: function() {
+//       var self = this;
+//       csInterface.evalScript(`kickstart()`, self.recolor)
+//     },
+//     recolor: function(e) {
+//       console.log('Recoloring');
+//       console.log(e);
+//       csInterface.evalScript(`changeLabels()`, this.$root.getNames)
+//     },
+//     action: function(str) {
+//       // console.log(`should target ${str}()`);
+//       csInterface.evalScript(`${str}()`)
+//     },
+//     changeAnno: function(str) {
+//       console.log(str);
+//       console.log(this.$root.msg);
+//       this.anno = 'new ' + str;
+//     },
+//     mounted() {
+//       var self = this;
+//       Event.$on('updateAnno', self.changeAnno)
+//     }
+//   }
+// })
 
 Vue.component('taglist', {
   template: `
@@ -119,13 +119,6 @@ Vue.component('selector', {
       </div>
     </div>
   `,
-  // <div class="aSelect-suffix">
-  // <div @click="test" class="aSelect-suffix-top">
-  // <span class="omo-icon-layer"></span>
-  // <span>layers</span>
-  // </div>
-  // <div class="aSelect-suffix-btm">{{selection.length}}</div>
-  // </div>
   data() {
     return {
       scanning: false,
@@ -138,12 +131,14 @@ Vue.component('selector', {
           raw: [],
           cloned: [],
           length: 0,
+          show: true,
         },
         props: {
           raw: [],
           cloned: [],
           length: 0,
-        }
+          show: true,
+        },
       },
       timer: {
         selection: null,
@@ -160,44 +155,64 @@ Vue.component('selector', {
     total: function() {
       return this.selection.layers.length + this.selection.props.length;
     },
-    selectedPropsList: function() {
-      var results = [];
-      if (this.selection.props.length) {
-        for (var i = 0; i < this.selection.layers.length; i++) {
-          results.push(this.selection.props[i].name);
-        }
-      }
-      return results;
-    },
-    selectedTagsList: function() {
-      var results = [];
-      // if (this.selection.props.length) {
-      //   for (var i = 0; i < this.selection.layers.length; i++) {
-      //     results.push(this.selection.props[i].name);
-      //   }
-      // }
-      return results;
-    }
   },
   mounted() {
     this.toggleScan();
     Event.$on('updateTags', this.updateTags)
   },
   methods: {
+    selectedLayerNameList: function() {
+      var self = this, mirror = self.selection.layers.cloned;
+      console.log(mirror);
+      var result = this.selectedLayerPropList(mirror);
+      console.log(result);
+      return result;
+    },
+    selectedPropNameList: function() {
+      var self = this;
+      console.log('Does the below work?');
+      console.log(self.selection.props.cloned);
+      var result = this.selectedLayerPropList(self.selection.props.cloned)
+      console.log(result);
+      return result;
+    },
+    selectedTagsList: function() {
+      var self = this, results = [];
+      if (this.selection.layers.show) {
+        var shadowLayers = self.selection.layers.cloned
+        for (var i = 0; i < shadowLayers.length; i++) {
+          var target = shadowLayers[i].tags;
+          results = [].concat(results, target);
+        }
+        results = this.$root.removeDuplicateKeywords(results);
+      }
+      if (this.selection.props.show) {
+        var shadowProps = self.selection.props.cloned
+        for (var p = 0; p < shadowProps.length; p++) {
+          var target = shadowProps[p].name;
+          results.push(target);
+        }
+        results = this.$root.removeDuplicateKeywords(results);
+      }
+      console.log(results);
+      return results;
+    },
     test: function() {
       console.log('This is blank and does nothing');
     },
     updateTags: function(data) {
       // console.log('Updated sibling');
     },
-    selectedLayerPropList: function(layers) {
+    selectedLayerPropList: function(target) {
+      console.log('Mirror target is:');
+      console.log(target);
       var results = [];
-      if (layers.length) {
-        for (var i = 0; i < layers.length; i++) {
-          // console.log();
-          results.push(layers[i].name);
+      if (target.length) {
+        for (var i = 0; i < target.length; i++) {
+          results.push(target[i].name);
         }
       }
+      console.log('Returning');
       return results;
     },
     generateTags: function(name) {
@@ -220,57 +235,50 @@ Vue.component('selector', {
       }
       return clone;
     },
-    // Too long and messy. Should update root array for tags to combine props/layers
+    constructPropMsg: function(msg) {
+      var newProps = []
+      if (msg.length) {
+        console.log('Prop details are:');
+        for (var p = 0; p < msg.length; p++) {
+          var clone = this.selectionClone(msg[p], 'prop');
+          newProps.push(clone)
+          console.log(clone);
+        }
+        console.log('Total selected props are:');
+        console.log(newProps);
+      }
+      return newProps;
+    },
+    constructLayerMsg: function(msg) {
+      var newLayers = [];
+      if (msg.length) {
+        for (var i = 0; i < msg.length; i++) {
+          var clone = this.selectionClone(msg[i], 'layer');
+          newLayers.push(clone);
+        }
+      }
+      return newLayers;
+    },
     selectionRead: function(result) {
       var msg = JSON.parse(result), self = this;
       this.selection.layers.length = msg.layers.length;
       this.selection.props.length = msg.props.length;
       var shadowlayers = this.selection.layers.raw, shadowprops = this.selection.props.raw;
-      // console.log('initial:');
-      // console.log(shadowprops);
       if (isEqual(shadowlayers, msg.layers.raw)) {
         if (isEqual(shadowprops, msg.props.raw)) {
+          self.selection.props.show = false;
           return true;
         } else {
+          self.selection.props.show = true;
           this.selection.props.raw = msg.props.raw;
-          if (msg.props.raw.length) {
-            var newProps = []
-            console.log('Prop details are:');
-            for (var p = 0; p < msg.props.raw.length; p++) {
-              var clone = this.selectionClone(msg.props.raw[p], 'prop');
-              newProps.push(clone)
-              console.log(clone);
-            }
-            console.log('Total selected props are:');
-            console.log(newProps);
-          }
-          this.selection.props.cloned = newProps;
-          // these need to be additive instead of exclusionary
-
-          // You should be collecting full prop name instead of KeyWord. Anchor Point produces 3 keywords, one of which a space character
-          var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerPropList(msg.props.raw));
-          console.log('Prop tags:');
-          console.log(tags);
-          // Event.$emit('updateTags');
+          this.selection.props.cloned = this.constructPropMsg(msg.props.raw);
+          this.$root.tags.master = this.selectedTagsList();
+          Event.$emit('updateTags');
         }
       } else {
         this.selection.layers.raw = msg.layers.raw;
-        if (msg.layers.raw.length) {
-          var newLayers = [];
-          console.log('Layer details are:');
-          for (var i = 0; i < msg.layers.raw.length; i++) {
-            var clone = this.selectionClone(msg.layers.raw[i], 'layer');
-            newLayers.push(clone);
-            console.log(clone);
-          }
-          console.log('Total selected layers are:');
-          console.log(newLayers);
-          this.selection.layers.cloned = newLayers;
-        }
-        var tags = this.$root.getKeyWordsFromSelectedLayers(self.selectedLayerPropList(msg.layers.raw));
-        console.log('Layer tags:');
-        console.log(tags);
-        // console.log('Hello?');
+        this.selection.layers.cloned = this.constructLayerMsg(msg.layers.raw);
+        this.$root.tags.master = this.selectedTagsList();
         Event.$emit('updateTags');
       }
     },
@@ -344,165 +352,165 @@ var isEqual = function (value, other) {
 };
 
 
-Vue.component('labels', {
-  template: `
-    <div class="head-B">
-      <div class="head-B-top">
-        <div @click="resetColorLabels" class="labels-btn">
-          <span class="omo-icon-labels"></span>
-        </div>
-        <div class="labelclimber-wrap">
-          <div class="labelclimber" @mouseover="activateScroll" @mouseout="deactivateScroll">
-            <div
-              class="label-lengthUp"
-              @click="plusLabel"><span class="omo-icon-arrowN"></span>
-            </div>
-            <div class="label-length">{{labels.length}}</div>
-            <div
-              class="label-lengthDown"
-              @click="minusLabel"><span class="omo-icon-arrowS"></span>
-            </div>
-          </div>
-          <div class="labelclimber-preview">
-            <div v-for="label in labels" :class="labelClass(label)"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  data() {
-    // labelOrder: [0, 1, 9, 8, 10, 14, 3, 15],
-    return {
-      labelsLength: 5,
-      maxLength: 17,
-      canScroll: false,
-      labels: [
-        { val: 1, key: 0 },
-        { val: 9, key: 1 },
-        { val: 8, key: 2 },
-        { val: 10, key: 3 },
-        { val: 14, key: 4 },
-      ],
-      labelColors:
-      ['#666666', '#b53838', '#e4d84c', '#a9cbc7', '#e5bcc9',
-      '#a9a9ca', '#e7c19e', '#b3c7b3', '#677de0', '#4aa44c',
-      '#8e2c9a', '#e8920d', '#7f452a', '#f46dd6', '#3da2a5',
-      '#a89677', '#1e401e']
-    }
-  },
-  computed :{
-    labelsUsed: function() {
-      var parent = [];
-      for (var i = 0; i < this.labels.length; i++) {
-        parent.push(this.labels[i].val);
-      }
-      return parent;
-    },
-    labelsNotUsed: function() {
-      var parent = [];
-      for (var e = 0; e < this.maxLength; e++) {
-        var labels = this.labelsUsed;
-        if (!labels.includes(e))
-          parent.push(e)
-      }
-      return parent;
-    }
-  },
-  methods: {
-    activateScroll: function() {
-      this.canScroll = true;
-    },
-    deactivateScroll: function() {
-      this.canScroll = false;
-    },
-    handleScroll: function(evt) {
-      if (this.canScroll) {
-        if (evt.deltaY < -1)
-          this.plusLabel();
-        else if (evt.deltaY > 1)
-          this.minusLabel();
-      }
-    },
-    minusLabel: function() {
-      this.labels.pop();
-      this.setCSSLength();
-    },
-    plusLabel: function() {
-      var self = this, newlength = this.labels.length + 1;
-      this.labels.push({val: this.getRandomLabel(), key: newlength})
-      this.setCSSLength();
-    },
-    setCSSLength: function() {
-      this.$root.setCSS('labels-length', this.labels.length)
-    },
-    labelClass: function(label) {
-      var style = 'label-Mock-' + label.val;
-      return style;
-    },
-    recolor: function(e) {
-      console.log('Recolor these by ');
-      var self = this, typeOrder = this.$root.tags.typeOrder, indexOrder = this.$root.tags.indexOrder;
-      // csInterface.evalScript(`colorcode()`, this.$root.getNames)
-      console.log(typeOrder);
-    },
-    resetColorLabels: function() {
-      csInterface.evalScript(`displayColorLabels()`)
-    },
-    getRandomLabel: function() {
-      var newnum = Math.floor(Math.random() * Math.floor(this.labelsNotUsed.length));
-      var newlabel = this.labelsNotUsed[newnum];
-      return newlabel;
-    }
-  },
-  mounted() {
-    var self = this;
-    document.addEventListener('mousewheel', this.handleScroll)
-  }
-})
+// Vue.component('labels', {
+//   template: `
+//     <div class="head-B">
+//       <div class="head-B-top">
+//         <div @click="resetColorLabels" class="labels-btn">
+//           <span class="omo-icon-labels"></span>
+//         </div>
+//         <div class="labelclimber-wrap">
+//           <div class="labelclimber" @mouseover="activateScroll" @mouseout="deactivateScroll">
+//             <div
+//               class="label-lengthUp"
+//               @click="plusLabel"><span class="omo-icon-arrowN"></span>
+//             </div>
+//             <div class="label-length">{{labels.length}}</div>
+//             <div
+//               class="label-lengthDown"
+//               @click="minusLabel"><span class="omo-icon-arrowS"></span>
+//             </div>
+//           </div>
+//           <div class="labelclimber-preview">
+//             <div v-for="label in labels" :class="labelClass(label)"></div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   `,
+//   data() {
+//     // labelOrder: [0, 1, 9, 8, 10, 14, 3, 15],
+//     return {
+//       labelsLength: 5,
+//       maxLength: 17,
+//       canScroll: false,
+//       labels: [
+//         { val: 1, key: 0 },
+//         { val: 9, key: 1 },
+//         { val: 8, key: 2 },
+//         { val: 10, key: 3 },
+//         { val: 14, key: 4 },
+//       ],
+//       labelColors:
+//       ['#666666', '#b53838', '#e4d84c', '#a9cbc7', '#e5bcc9',
+//       '#a9a9ca', '#e7c19e', '#b3c7b3', '#677de0', '#4aa44c',
+//       '#8e2c9a', '#e8920d', '#7f452a', '#f46dd6', '#3da2a5',
+//       '#a89677', '#1e401e']
+//     }
+//   },
+//   computed :{
+//     labelsUsed: function() {
+//       var parent = [];
+//       for (var i = 0; i < this.labels.length; i++) {
+//         parent.push(this.labels[i].val);
+//       }
+//       return parent;
+//     },
+//     labelsNotUsed: function() {
+//       var parent = [];
+//       for (var e = 0; e < this.maxLength; e++) {
+//         var labels = this.labelsUsed;
+//         if (!labels.includes(e))
+//           parent.push(e)
+//       }
+//       return parent;
+//     }
+//   },
+//   methods: {
+//     activateScroll: function() {
+//       this.canScroll = true;
+//     },
+//     deactivateScroll: function() {
+//       this.canScroll = false;
+//     },
+//     handleScroll: function(evt) {
+//       if (this.canScroll) {
+//         if (evt.deltaY < -1)
+//           this.plusLabel();
+//         else if (evt.deltaY > 1)
+//           this.minusLabel();
+//       }
+//     },
+//     minusLabel: function() {
+//       this.labels.pop();
+//       this.setCSSLength();
+//     },
+//     plusLabel: function() {
+//       var self = this, newlength = this.labels.length + 1;
+//       this.labels.push({val: this.getRandomLabel(), key: newlength})
+//       this.setCSSLength();
+//     },
+//     setCSSLength: function() {
+//       this.$root.setCSS('labels-length', this.labels.length)
+//     },
+//     labelClass: function(label) {
+//       var style = 'label-Mock-' + label.val;
+//       return style;
+//     },
+//     recolor: function(e) {
+//       console.log('Recolor these by ');
+//       var self = this, typeOrder = this.$root.tags.typeOrder, indexOrder = this.$root.tags.indexOrder;
+//       // csInterface.evalScript(`colorcode()`, this.$root.getNames)
+//       console.log(typeOrder);
+//     },
+//     resetColorLabels: function() {
+//       csInterface.evalScript(`displayColorLabels()`)
+//     },
+//     getRandomLabel: function() {
+//       var newnum = Math.floor(Math.random() * Math.floor(this.labelsNotUsed.length));
+//       var newlabel = this.labelsNotUsed[newnum];
+//       return newlabel;
+//     }
+//   },
+//   mounted() {
+//     var self = this;
+//     document.addEventListener('mousewheel', this.handleScroll)
+//   }
+// })
 
-Vue.component('screen', {
-  template: `
-    <div class="cGrid">
-      <div class="screenBody"></div>
-      <div class="screenToolbar">
-        <div v-for="btn in btns" @mouseover="broadcast(btn)" class="screenToolbarBtn">
-          <span :class="getIcon(btn)"></span>
-        </div>
-      </div>
-    </div>
-  `,
-  data() {
-    return {
-      msg: 'test',
-      btns: [
-        {name: 'orb', key: 0},
-        {name: 'cube', key: 1},
-        {name: 'sliders', key: 2},
-        {name: 'joystick', key: 3},
-        {name: 'gaze', key: 4},
-        {name: 'bone', key: 5},
-        // {name: 'boxes', key: 6},
-        // {name: 'rotate', key: 7},
-      ],
-    }
-  },
-  methods: {
-    broadcast: function(btn) {
-      console.log('broadcasting');
-      this.$root.msg = btn.name;
-      Event.$emit('updateAnno');
-    },
-    getIcon: function(btn) {
-      return 'omo-icon-' + btn.name;
-    },
-    updateCSSToolbar: function() {
-      return this.$root.setCSS('toolbar-length', this.btns.length)
-    },
-  },
-  mounted() {
-    this.updateCSSToolbar();
-  }
-})
+// Vue.component('screen', {
+//   template: `
+//     <div class="cGrid">
+//       <div class="screenBody"></div>
+//       <div class="screenToolbar">
+//         <div v-for="btn in btns" @mouseover="broadcast(btn)" class="screenToolbarBtn">
+//           <span :class="getIcon(btn)"></span>
+//         </div>
+//       </div>
+//     </div>
+//   `,
+//   data() {
+//     return {
+//       msg: 'test',
+//       btns: [
+//         {name: 'orb', key: 0},
+//         {name: 'cube', key: 1},
+//         {name: 'sliders', key: 2},
+//         {name: 'joystick', key: 3},
+//         {name: 'gaze', key: 4},
+//         {name: 'bone', key: 5},
+//         // {name: 'boxes', key: 6},
+//         // {name: 'rotate', key: 7},
+//       ],
+//     }
+//   },
+//   methods: {
+//     broadcast: function(btn) {
+//       console.log('broadcasting');
+//       this.$root.msg = btn.name;
+//       Event.$emit('updateAnno');
+//     },
+//     getIcon: function(btn) {
+//       return 'omo-icon-' + btn.name;
+//     },
+//     updateCSSToolbar: function() {
+//       return this.$root.setCSS('toolbar-length', this.btns.length)
+//     },
+//   },
+//   mounted() {
+//     this.updateCSSToolbar();
+//   }
+// })
 
 
 var app = new Vue({
@@ -630,9 +638,6 @@ var app = new Vue({
       return allKeyWords;
     },
     getKeyWords: function(nameList) {
-      // This was initially a string, but retroactively given arrays.
-      // The problem was the entry data all along
-      // console.log(nameList);
       var allKeyWords = [];
       for (var i = 0; i < nameList.length; i++) {
         if (this.rx.ifoneword.test(nameList[i])) {
@@ -650,7 +655,6 @@ var app = new Vue({
       this.tags.pretty = this.removeDuplicateKeywords(allKeyWords);
       this.tags.raw = allKeyWords;
       this.tags.uniquePart = this.sortByType(this.tags.pretty, 'limb');
-
       // BROKEN
       this.tags.typeOrder = this.identifyTypesInLayers(nameList, this.tags.pretty);
       // console.log(this.tags.pretty);
