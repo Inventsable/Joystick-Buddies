@@ -1,4 +1,48 @@
-// PRO
+
+// selection graves
+
+// selectedLayerNameList: function() {
+//   var self = this, mirror = self.selection.layers.cloned;
+//   var result = this.selectedLayerPropList(mirror);
+//   return result;
+// },
+// selectedPropNameList: function() {
+//   var self = this;
+//   // var result = this.selectedLayerPropList(self.selection.props.cloned)
+//   return result;
+// },
+// selectedLayerPropList: function(target) {
+//   var results = [];
+//   if (target.length) {
+//     for (var i = 0; i < target.length; i++) {
+//       results.push(target[i].name);
+//     }
+//   }
+//   console.log('Returning');
+//   return results;
+// },
+// constructFamilyName: function(matches, ref) {
+//   var result = ''
+//   // console.log(matches);
+//   for (var i = 0; i < matches.length; i++) {
+//     if (matches[i] == ref[i])
+//       result += matches[i]
+//   }
+//   return result;
+// },
+// traceFamily: function(a, b, count) {
+//   if ((count < a.tags.length) && (count < b.tags.length)) {
+//     if (a.tags[count] == b.tags[count]) {
+//       // console.log(`matching at ${count}: [${a.tags[count]}, ${b.tags[count]}]`);
+//       count++;
+//       this.traceFamily(a, b, count);
+//     } else {
+//       console.log(`does not match at ${count}: [${a.tags[count]}, ${b.tags[count]}]`);
+//     }
+//   }
+//   count++;
+//   return count;
+// },
 
 // root graves
 // if (this.$root.isEqual(shadowprops, msg.props.raw)) {

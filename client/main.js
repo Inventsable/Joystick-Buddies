@@ -16,30 +16,16 @@ Vue.component('selector', {
   data() {
     return {
       scanning: false,
-      selection: {
-        total: 0,
-        layers: {
-          raw: [],
-          cloned: [],
-          length: 0,
-          show: true,
-        },
-        props: {
-          raw: [],
-          cloned: [],
-          length: 0,
-          show: true,
-        },
-      },
       timer: {
         selection: null,
       },
+
     }
   },
   computed: {
     total: function() {
-      return this.selection.layers.length
-       // + this.selection.props.length;
+      return this.$root.selection.layers.length
+       // + this.$root.selection.props.length;
     },
   },
   mounted() {
@@ -47,87 +33,125 @@ Vue.component('selector', {
     Event.$on('updateTags', this.updateTags)
   },
   methods: {
-    // loopThru: function(dir) {
-    //
+    // updateMasterSelection: function() {
+    //   console.log(this.$root.selection.layers);
     // },
-    traceFamily: function(a, b, count) {
-      console.log(count);
-      console.log(a.tags[count]);
-      console.log(b.tags[count]);
-      if ((count < a.tags.length) && (count < b.tags.length)) {
-        if (a.tags[count] == b.tags[count]) {
-          console.log(`matching at ${count}: [${a.tags[count]}, ${b.tags[count]}]`);
-          count++;
-          this.traceFamily(a, b, count);
+    displayAllFamilies: function() {
+      for (var i = 0; i < this.$root.selection.layers.cloned.length; i++) {
+        var layer = this.$root.selection.layers.cloned[i];
+        var family = layer.family;
+        console.log(`\r\n${layer.name}'s family is:`)
+        for (let [key, value] of Object.entries(family)) {
+          if (value.length) {
+            console.log(key);
+            var str = '';
+            for (var v = 0; v < value.length; v++) {
+              str += '\t' + value[v].name + '\r\n'
+            }
+            console.log(str);
+          }
         }
       }
-      return count;
     },
     sharesFamily: function(a, b) {
       var self = this;
       var family = {
         indices: [a.index, b.index],
-        results: self.difference(a.tags, b.tags),
+        genes: self.difference(a.tags, b.tags),
         relation: [],
       }
-      if (family.results.length) {
-        if ((a.tags.length == family.results.length) && (b.tags.length > family.results.length)) {
+      if (family.genes.length) {
+        if ((a.tags.length == family.genes.length) && (b.tags.length > family.genes.length))
           family.relation = ['parent', 'child'];
-        } else if ((b.tags.length == family.results.length) && (a.tags.length > family.results.length)) {
+        else if ((b.tags.length == family.genes.length) && (a.tags.length > family.genes.length))
           family.relation = ['child', 'parent']
-        }
-        if ((family.results.length == a.tags.length - 1) && (family.results.length == b.tags.length - 1)) {
+        if ((family.genes.length == a.tags.length - 1) && (family.genes.length == b.tags.length - 1))
           family.relation = ['sibling', 'sibling'];
-        }
-        if (family.results.length == a.tags.length - 1) {
-          if (b.tags.length > a.tags.length) {
+        if (family.genes.length == a.tags.length - 1) {
+          if (b.tags.length > a.tags.length)
             family.relation = ['distant', 'distant'];
-          } else {
-            family.relation[0] = 'sibling';
-          }
         }
-        if (family.results.length == b.tags.length - 1) {
-          if (a.tags.length > b.tags.length) {
+        if (family.genes.length == b.tags.length - 1) {
+          if (a.tags.length > b.tags.length)
             family.relation = ['distant', 'distant'];
-          } else {
-            family.relation[1] = 'sibling';
-          }
         }
-        if ((!family.relation.length) && (family.results.length)) {
+        if ((!family.relation.length) && (family.genes.length))
           family.relation = ['cousin', 'cousin'];
-        }
       } else {
         family.relation = [];
       }
       return family;
     },
-    updateTags: function(data) {
-      // console.log('Tags updated');
-      console.log(this.selection.layers.cloned);
-      if (this.selection.layers.cloned.length > 1) {
-        var jack = this.selection.layers.cloned[0];
-        var john = this.selection.layers.cloned[1];
-        var family = this.sharesFamily(jack, john)
-        if (family.relation.length) {
-          console.log('These are related:');
-          console.log(`a: ${family.relation[0]}, b: ${family.relation[1]}`);
-          var genes = this.traceFamily(jack, john, 0);
-          console.log(genes);
-        } else {
-          console.log('These are not related');
+    notInFamily: function(person, branch) {
+      var result = false;
+      // console.log(branch);
+      if (branch.length) {
+        for (var i = 0; i < branch.length; i++) {
+          // console.log(branch[i]);
+          // console.log(person);
+          if (branch[i] == person) {
+            result = true;
+            break;
+          }
         }
-        console.log(family);
+      } else {
+        result = true;
+      }
+      return result;
+    },
+    selectedFamilies: function() {
+      var families = [], self = this, newRelation = 0, totalRelations = [];
+      if (this.$root.selection.layers.cloned.length > 1) {
+        for (var i = 0; i < this.$root.selection.layers.cloned.length; i++) {
+          for (var c = 0; c < this.$root.selection.layers.cloned.length; c++) {
+            if (i !== c) {
+              var paul = this.$root.selection.layers.cloned[i], john = this.$root.selection.layers.cloned[c];
+              // console.log(paul);
+              // console.log(john);
+              var family = this.sharesFamily(paul, john);
+              if (family.relation.length) {
+                var johnboy = {name: john.name, index: john.index}, paulboy = {name: paul.name, index: paul.index};
+                var clones = [johnboy, paulboy], cloneFam = [john.family, paul.family];
+                for (var p = 0; p < clones.length; p++) {
+                  var inverse = (p) ? 0 : 1;
+                  var types = [['parent', 'parent'], ['children', 'child'], ['siblings', 'sibling'], ['cousins', 'cousin']]
+                  // console.log(`checking ${clones[inverse].name}'s role in ${clones[p].name}'s family`);
+                  for (var t = 0; t < types.length; t++) {
+                    var role = types[t][1], branch = types[t][0];
+                    if (family.relation[p] == role) {
+                      if (this.notInFamily(clones[inverse], cloneFam[p][branch])) {
+                        console.log(`${clones[inverse].name} is ${role} in ${clones[p].name}'s ${branch}`);
+                        newRelation++;
+                        cloneFam[p][branch].push(clones[inverse]);
+                        totalRelations.push(role);
+                      } else {
+                        // console.log(`${clones[inverse].name} is already a ${role} in ${clones[p].name}'s ${branch}`);
+                      }
+                    }
+                  }
+                }
+              } else {
+                // console.log('These are not related');
+              }
+            }
+          }
+          // var tree = this.$root.selection.layers.cloned[i];
+          // console.log(tree.name);
+          // console.log(tree.family);
+        }
+        var uniqueRelations = this.$root.removeDuplicateKeywords(families);
+        console.log(`${newRelation} individual relations:`);
+        console.log(totalRelations);
+        console.log(uniqueRelations);
+        this.displayAllFamilies();
+      } else {
+        console.log('Clear relations');
       }
     },
-    selectedLayerNameList: function() {
-      var self = this, mirror = self.selection.layers.cloned;
-      var result = this.selectedLayerPropList(mirror);
-      return result;
-    },
-    selectedPropNameList: function() {
-      var self = this;
-      // var result = this.selectedLayerPropList(self.selection.props.cloned)
-      return result;
+    updateTags: function(data) {
+      // console.log('Tags updated');
+      this.selectedFamilies();
+      // console.log(this.$root.selection.layers.cloned);
     },
     selectedTagsList: function() {
       var self = this, layers = [], props = [];
@@ -136,49 +160,18 @@ Vue.component('selector', {
         props: [],
         all: [],
       }
-      if (this.selection.layers.show) {
-        var shadowLayers = self.selection.layers.cloned
-        for (var i = 0; i < shadowLayers.length; i++) {
-          var tags = shadowLayers[i].tags;
-          results.layers = [].concat(results.layers, tags);
-          for (var p = 0; p < shadowLayers[i].props.length; p++) {
-            var prop = shadowLayers[i].props[p].name;
-            results.props.push(prop);
-          }
-        }
-        results.layers = this.$root.removeDuplicateKeywords(results.layers);
-        results.props = this.$root.removeDuplicateKeywords(results.props);
-        results.all = [].concat(results.layers, results.props);
-      }
-      return results;
-    },
-    test: function() {
-      console.log('This is blank and does nothing');
-    },
-    difference: function(a,b) {
-      var sorted_a = a.concat().sort(), sorted_b = b.concat().sort();
-      var common = [], a_i = 0, b_i = 0;
-      while (a_i < a.length && b_i < b.length) {
-        if (sorted_a[a_i] === sorted_b[b_i]) {
-          common.push(sorted_a[a_i]);
-          a_i++;
-          b_i++;
-        } else if(sorted_a[a_i] < sorted_b[b_i]) {
-          a_i++;
-        } else {
-          b_i++;
+      var shadowLayers = this.$root.selection.layers.cloned;
+      for (var i = 0; i < shadowLayers.length; i++) {
+        var tags = shadowLayers[i].tags;
+        results.layers = [].concat(results.layers, tags);
+        for (var p = 0; p < shadowLayers[i].props.length; p++) {
+          var prop = shadowLayers[i].props[p].name;
+          results.props.push(prop);
         }
       }
-      return common;
-    },
-    selectedLayerPropList: function(target) {
-      var results = [];
-      if (target.length) {
-        for (var i = 0; i < target.length; i++) {
-          results.push(target[i].name);
-        }
-      }
-      console.log('Returning');
+      results.layers = this.$root.removeDuplicateKeywords(results.layers);
+      results.props = this.$root.removeDuplicateKeywords(results.props);
+      results.all = [].concat(results.layers, results.props);
       return results;
     },
     generateTags: function(name) {
@@ -195,6 +188,12 @@ Vue.component('selector', {
       if (type == 'layer') {
         clone['locked'] = child.locked;
         clone['props'] = self.constructPropMsg(child.props);
+        clone['family'] = {
+          parent: [],
+          children: [],
+          cousins: [],
+          siblings: [],
+        }
       } else if (type == 'prop') {
         clone['depth'] = child.depth;
         clone['parent'] = child.parent;
@@ -224,14 +223,15 @@ Vue.component('selector', {
     },
     selectionRead: function(result) {
       var msg = JSON.parse(result), self = this;
-      this.selection.layers.length = msg.layers.length;
-      var shadowlayers = this.selection.layers.raw;
+      this.$root.selection.layers.length = msg.layers.length;
+      var shadowlayers = this.$root.selection.layers.raw;
       if (this.$root.isEqual(shadowlayers, msg.layers.raw)) {
         // console.log('No change');
       } else {
-        this.selection.layers.raw = msg.layers.raw;
-        this.selection.layers.cloned = this.constructLayerMsg(msg.layers.raw);
-        var tags = this.selectedTagsList()
+        // console.log(msg);
+        this.$root.selection.layers.raw = msg.layers.raw;
+        this.$root.selection.layers.cloned = this.constructLayerMsg(msg.layers.raw);
+        var tags = this.selectedTagsList();
         this.$root.tags.master = tags.all;
         Event.$emit('updateTags');
       }
@@ -255,6 +255,26 @@ Vue.component('selector', {
         this.scanLayers(this.scanning);
       else
         this.stopLayersScan();
+    },
+    test: function() {
+      console.log('This is blank and does nothing');
+    },
+    difference: function(a,b) {
+      var sorted_a = a.concat().sort(), sorted_b = b.concat().sort();
+      var common = [], a_i = 0, b_i = 0;
+      while (a_i < a.length && b_i < b.length) {
+        if (sorted_a[a_i] === sorted_b[b_i]) {
+          common.push(sorted_a[a_i]);
+          a_i++;
+          b_i++;
+        } else if(sorted_a[a_i] < sorted_b[b_i]) {
+          a_i++;
+        } else {
+          b_i++;
+        }
+      }
+      // common.reverse()
+      return common;
     },
   }
 })
@@ -297,8 +317,8 @@ Vue.component('taglist', {
         }
         this.tagList.push(child);
       }
-      console.log('Current tags are:');
-      console.log(this.$root.tags.master);
+      // console.log('Current tags are:');
+      // console.log(this.$root.tags.master);
     }
   },
   computed: {
@@ -329,6 +349,13 @@ var app = new Vue({
      ifoneword: /^((\d*\_*)|([A-Za-z]))[a-z]*$/,
      onesort: /[^\_]*$/,
      keywordOld: /([a-z]|[A-Z])[a-z]*(?=[A-Z]|\s)/gm,
+   },
+   selection: {
+     layers: {
+       show: true,
+       cloned: [],
+       length: 0,
+     },
    },
    tags: {
      master: [],
@@ -378,10 +405,12 @@ var app = new Vue({
           }
         }
       }
+      // deprecated
       this.tags.nameList = nameList;
       this.tags.pretty = this.removeDuplicateKeywords(allKeyWords);
       this.tags.raw = allKeyWords;
       this.tags.uniquePart = this.sortByType(this.tags.pretty, 'limb');
+      //
       return this.removeDuplicateKeywords(allKeyWords);
     },
     removeDuplicateKeywords: function(keyList) {
